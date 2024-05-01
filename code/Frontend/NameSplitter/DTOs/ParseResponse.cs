@@ -8,16 +8,16 @@ namespace NameSplitter.DTOs
 {
     public class ParseResponse
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
 
-        public string Salutation { get; set; }
+        public string Salutation { get; set; } = "";
 
-        public string StandardizedLetterSalutation { get; set; }
+        public string StandardizedLetterSalutation { get; set; } = "";
 
-        public string Gender { get; set; }
+        public string Gender { get; set; } = "";
 
-        public string Firstname { get; set; }
+        public string Firstname { get; set; } = "";
 
-        public string Surname { get; set; }
+        public string Surname { get; set; } = "";
     }
 }
