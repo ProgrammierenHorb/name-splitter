@@ -1,5 +1,7 @@
-﻿using NameSplitter.Services;
+﻿using NameSplitter.Events;
+using NameSplitter.Services;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using System.Threading.Tasks;
 
@@ -12,6 +14,7 @@ namespace NameSplitter.ViewModels
         private IApiClient _apiClient;
         private bool _error = false;
         private string _errorMessage = string.Empty;
+        private IEventAggregator _eventAggregator;
         private string _firstname = "";
         private string _gender = "";
         private string _input = "";
@@ -213,7 +216,7 @@ namespace NameSplitter.ViewModels
             get { return _standardizedSalutation; }
             set
             {
-                if( !_standardizedSalutation.Equals(value) )
+                if( _standardizedSalutation != null && !_standardizedSalutation.Equals(value) )
                 {
                     IsStandardizedSalutationChanged = true;
                 }
@@ -238,10 +241,13 @@ namespace NameSplitter.ViewModels
 
         #endregion Properties
 
-        public SplitterViewModel( IApiClient apiClient )
+        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
         {
             _apiClient = apiClient;
+            _eventAggregator = eventAggregator;
+
             ButtonParse = new DelegateCommand(ButtonParseHandler);
+            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
         }
 
         private void ButtonParseHandler()

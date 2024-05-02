@@ -1,28 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using NameSplitter.Events;
+using Prism.Events;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NameSplitter.Views
 {
     /// <summary>
     /// Interaction logic for SplitterView.xaml
     /// </summary>
-    public partial class SplitterView : UserControl
+    public partial class SplitterView: UserControl
     {
-        public SplitterView()
+        private IEventAggregator _eventAggregator;
+
+        public SplitterView( IEventAggregator eventAggregator )
         {
+            _eventAggregator = eventAggregator;
             InitializeComponent();
+        }
+
+        private void Window_KeyUp( object sender, KeyEventArgs e )
+        {
+            if( e.Key == Key.Enter )
+            {
+                _eventAggregator.GetEvent<ParseEvent>().Publish();
+            }
         }
     }
 }

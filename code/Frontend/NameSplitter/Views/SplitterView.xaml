@@ -5,6 +5,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+             KeyUp="Window_KeyUp"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="400" d:DesignWidth="625" Background="White">
     <UserControl.Resources>
