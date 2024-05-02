@@ -1,23 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace NameSplitter.DTOs
 {
     public class ParseResponse
     {
-        public string Title { get; set; } = "";
+        [JsonPropertyName("error")]
+        public bool Error { get; set; }
 
-        public string Salutation { get; set; } = "";
+        [JsonPropertyName("errorMessage")]
+        public string ErrorMessage { get; set; }
 
-        public string StandardizedLetterSalutation { get; set; } = "";
+        [JsonPropertyName("structuredName")]
+        public Structuredname StructuredName { get; set; }
+    }
 
-        public string Gender { get; set; } = "";
+    public class Structuredname
+    {
+        [JsonPropertyName("firstName")]
+        public string FirstName { get; set; }
 
-        public string Firstname { get; set; } = "";
+        [JsonPropertyName("gender")]
+        public string Gender { get; set; }
 
-        public string Surname { get; set; } = "";
+        [JsonPropertyName("lastName")]
+        public string LastName { get; set; }
+
+        [JsonPropertyName("standardizedSalutation")]
+        public string StandardizedSalutation { get; set; }
+
+        [JsonPropertyName("titles")]
+        public List<string> Titles { get; set; }
     }
 }

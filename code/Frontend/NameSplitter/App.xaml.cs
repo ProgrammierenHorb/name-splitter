@@ -3,6 +3,7 @@ using NameSplitter.Views;
 using Prism.Ioc;
 using Prism.Regions;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Windows;
 
 namespace NameSplitter
@@ -33,6 +34,7 @@ namespace NameSplitter
         {
             containerRegistry.RegisterForNavigation<MainWindowView>(nameof(MainWindowView));
             containerRegistry.RegisterForNavigation<SplitterView>(nameof(SplitterView));
+            containerRegistry.RegisterSingleton<HttpClient>();
             containerRegistry.Register<IApiClient, ApiClient>();
         }
     }

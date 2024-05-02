@@ -1,27 +1,32 @@
 ﻿using NameSplitter.Services;
 using Prism.Commands;
 using Prism.Mvvm;
+using System.Threading.Tasks;
 
 namespace NameSplitter.ViewModels
 {
-    public class SplitterViewModel : BindableBase
+    public class SplitterViewModel: BindableBase
     {
         #region privateVariables
 
         private IApiClient _apiClient;
+        private bool _error = false;
+        private string _errorMessage = string.Empty;
         private string _firstname = "";
         private string _gender = "";
         private string _input = "";
-        private bool _isFirstnameChanged = false;
+        private bool _isErrorChanged = false;
+        private bool _isErrorMessageChanged = false;
+        private bool _isFirstNameChanged = false;
         private bool _isGenderChanged = false;
+        private bool _isLastNameChanged = false;
         private bool _isSalutationChanged = false;
-        private bool _isStandardizedLetterSalutationChanged = false;
-        private bool _isSurnameChanged = false;
+        private bool _isStandardizedSalutationChanged = false;
         private bool _isTitleChanged = false;
         private string _salutation = "";
-        private string _standardizedLetterSalutation = "";
+        private string _standardizedSalutation = "";
         private string _surname = "";
-        private string _title = "";
+        private string _titles = "";
 
         #endregion privateVariables
 
@@ -29,17 +34,45 @@ namespace NameSplitter.ViewModels
 
         public DelegateCommand ButtonParse { get; set; }
 
-        public string Firstname
+        public bool Error
+        {
+            get { return _error; }
+            set
+            {
+                if( !_error.Equals(value) )
+                {
+                    IsErrorChanged = true;
+                }
+                _error = value;
+                RaisePropertyChanged(nameof(Error));
+            }
+        }
+
+        public string ErrorMessage
+        {
+            get { return _errorMessage; }
+            set
+            {
+                if( !_errorMessage.Equals(value) )
+                {
+                    IsErrorMessageChanged = true;
+                }
+                _errorMessage = value;
+                RaisePropertyChanged(nameof(_errorMessage));
+            }
+        }
+
+        public string FirstName
         {
             get { return _firstname; }
             set
             {
-                if (!_firstname.Equals(value))
+                if( !_firstname.Equals(value) )
                 {
-                    IsFirstnameChanged = true;
+                    IsFirstNameChanged = true;
                 }
                 _firstname = value;
-                RaisePropertyChanged(nameof(Firstname));
+                RaisePropertyChanged(nameof(FirstName));
             }
         }
 
@@ -48,7 +81,7 @@ namespace NameSplitter.ViewModels
             get { return _gender; }
             set
             {
-                if (!_gender.Equals(value))
+                if( !_gender.Equals(value) )
                 {
                     IsGenderChanged = true;
                 }
@@ -67,13 +100,33 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public bool IsFirstnameChanged
+        public bool IsErrorChanged
         {
-            get { return _isFirstnameChanged; }
+            get { return _isErrorChanged; }
             set
             {
-                _isFirstnameChanged = value;
-                RaisePropertyChanged(nameof(IsFirstnameChanged));
+                _isErrorChanged = value;
+                RaisePropertyChanged(nameof(IsErrorChanged));
+            }
+        }
+
+        public bool IsErrorMessageChanged
+        {
+            get { return _isErrorMessageChanged; }
+            set
+            {
+                _isErrorMessageChanged = value;
+                RaisePropertyChanged(nameof(IsErrorMessageChanged));
+            }
+        }
+
+        public bool IsFirstNameChanged
+        {
+            get { return _isFirstNameChanged; }
+            set
+            {
+                _isFirstNameChanged = value;
+                RaisePropertyChanged(nameof(IsFirstNameChanged));
             }
         }
 
@@ -87,6 +140,16 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        public bool IsLastNameChanged
+        {
+            get { return _isLastNameChanged; }
+            set
+            {
+                _isLastNameChanged = value;
+                RaisePropertyChanged(nameof(IsLastNameChanged));
+            }
+        }
+
         public bool IsSalutationChanged
         {
             get { return _isSalutationChanged; }
@@ -97,23 +160,13 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public bool IsStandardizedLetterSalutationChanged
+        public bool IsStandardizedSalutationChanged
         {
-            get { return _isStandardizedLetterSalutationChanged; }
+            get { return _isStandardizedSalutationChanged; }
             set
             {
-                _isStandardizedLetterSalutationChanged = value;
-                RaisePropertyChanged(nameof(IsStandardizedLetterSalutationChanged));
-            }
-        }
-
-        public bool IsSurnameChanged
-        {
-            get { return _isSurnameChanged; }
-            set
-            {
-                _isSurnameChanged = value;
-                RaisePropertyChanged(nameof(IsSurnameChanged));
+                _isStandardizedSalutationChanged = value;
+                RaisePropertyChanged(nameof(IsStandardizedSalutationChanged));
             }
         }
 
@@ -127,12 +180,26 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        public string LastName
+        {
+            get { return _surname; }
+            set
+            {
+                if( !_surname.Equals(value) )
+                {
+                    IsLastNameChanged = true;
+                }
+                _surname = value;
+                RaisePropertyChanged(nameof(LastName));
+            }
+        }
+
         public string Salutation
         {
             get { return _salutation; }
             set
             {
-                if (!_salutation.Equals(value))
+                if( !_salutation.Equals(value) )
                 {
                     IsSalutationChanged = true;
                 }
@@ -141,69 +208,56 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public string StandardizedLetterSalutation
+        public string StandardizedSalutation
         {
-            get { return _standardizedLetterSalutation; }
+            get { return _standardizedSalutation; }
             set
             {
-                if (!_standardizedLetterSalutation.Equals(value))
+                if( !_standardizedSalutation.Equals(value) )
                 {
-                    IsStandardizedLetterSalutationChanged = true;
+                    IsStandardizedSalutationChanged = true;
                 }
-                _standardizedLetterSalutation = value;
-                RaisePropertyChanged(nameof(StandardizedLetterSalutation));
+                _standardizedSalutation = value;
+                RaisePropertyChanged(nameof(StandardizedSalutation));
             }
         }
 
-        public string Surname
+        public string Titles
         {
-            get { return _surname; }
+            get { return _titles; }
             set
             {
-                if (!_surname.Equals(value))
-                {
-                    IsSurnameChanged = true;
-                }
-                _surname = value;
-                RaisePropertyChanged(nameof(Surname));
-            }
-        }
-
-        public string Title
-        {
-            get { return _title; }
-            set
-            {
-                if (!_title.Equals(value))
+                if( !_titles.Equals(value) )
                 {
                     IsTitleChanged = true;
                 }
-                _title = value;
-                RaisePropertyChanged(nameof(Title));
+                _titles = value;
+                RaisePropertyChanged(nameof(Titles));
             }
         }
 
         #endregion Properties
 
-        private void ButtonParseHandler()
-        {
-            var result = _apiClient.Parse(Input);
-
-            Title = result.Title;
-            Salutation = result.Salutation;
-            StandardizedLetterSalutation = result.StandardizedLetterSalutation;
-            Gender = result.Gender;
-            Firstname = result.Firstname;
-            Surname = result.Surname;
-
-            Title = Input;
-            Surname = Input;
-        }
-
         public SplitterViewModel( IApiClient apiClient )
         {
             _apiClient = apiClient;
             ButtonParse = new DelegateCommand(ButtonParseHandler);
+        }
+
+        private void ButtonParseHandler()
+        {
+            Task.Run(async () =>
+            {
+                var result = await _apiClient.Parse(Input);
+                if( result.StructuredName != null && result.StructuredName.Titles != null )
+                    Titles = string.Join(", ", result.StructuredName.Titles);
+
+                StandardizedSalutation = result.StructuredName?.StandardizedSalutation;
+                Gender = result.StructuredName?.Gender;
+                FirstName = result.StructuredName?.FirstName;
+                LastName = result.StructuredName?.LastName;
+                //Salutation = result.Structuredname.StandardizedSalutation;
+            });
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using NameSplitter.DTOs;
+using System.Threading.Tasks;
 
 namespace NameSplitter.Services
 {
     public interface IApiClient
     {
-        ParseResponse Parse( string input );
+        Task<ParseResponse> Parse( string input );
     }
 }
