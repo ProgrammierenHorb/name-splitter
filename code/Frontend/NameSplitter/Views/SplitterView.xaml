@@ -76,10 +76,20 @@
                 <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1">
-                <ListView ItemsSource="{Binding EnteredElements}">
+                <ListView ItemsSource="{Binding EnteredElements}" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="450" Height="200">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Titles" Width="Auto" DisplayMemberBinding="{Binding StructuredName.Titles, Converter={StaticResource StringToListConverterKey}}" />
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="Padding" Value="8" />
+                                    <Setter Property="BorderThickness" Value="3" />
+                                    <Setter Property="IsEnabled" Value="False" />
+                                    <Setter Property="Background" Value="LightBlue" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Header="Titles" DisplayMemberBinding="{Binding StructuredName.Titles, Converter={StaticResource StringToListConverterKey}}" Width="Auto" />
                             <GridViewColumn Header="Vorname" DisplayMemberBinding="{Binding StructuredName.FirstName}" Width="Auto" />
                             <GridViewColumn Header="Nachname" DisplayMemberBinding="{Binding StructuredName.LastName}" Width="Auto" />
                             <GridViewColumn Header="Briefanrede" DisplayMemberBinding="{Binding StructuredName.StandardizedSalutation}" Width="Auto" />
