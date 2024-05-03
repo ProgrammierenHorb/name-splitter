@@ -18,6 +18,14 @@ namespace NameSplitter.Views
             InitializeComponent();
         }
 
+        private void ListView_MouseDoubleClick( object sender, MouseButtonEventArgs e )
+        {
+            if( EnteredElementsListView.SelectedItem != null )
+            {
+                ;//TODO: Open Dialog
+            }
+        }
+
         private void Window_KeyUp( object sender, KeyEventArgs e )
         {
             if( e.Key == Key.Enter )

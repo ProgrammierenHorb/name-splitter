@@ -77,7 +77,7 @@
                 <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1" Grid.ColumnSpan="2">
-                <ListView ItemsSource="{Binding EnteredElements}" d:ItemsSource="{d:SampleData ItemCount=15}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="450" Height="200" SelectionMode="Single">
+                <ListView Name="EnteredElementsListView" ItemsSource="{Binding EnteredElements}" MouseDoubleClick="ListView_MouseDoubleClick"  d:ItemsSource="{d:SampleData ItemCount=15}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="450" Height="200" SelectionMode="Single">
                     <ListView.View>
                         <GridView>
                             <GridView.ColumnHeaderContainerStyle>
