@@ -15,7 +15,6 @@ namespace NameSplitter.ViewModels
         #region privateVariables
 
         private IApiClient _apiClient;
-        private ObservableCollection<ParseResponse> _enteredElements = new ObservableCollection<ParseResponse>();
         private bool _error = false;
         private string _errorMessage = string.Empty;
         private IEventAggregator _eventAggregator;
@@ -134,7 +133,6 @@ namespace NameSplitter.ViewModels
 
             ButtonParse = new DelegateCommand(ButtonParseHandler);
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
-            EnteredElements.Add(new ParseResponse { ErrorMessage = "Test1", StructuredName = new Structuredname { FirstName = "Test" } });
         }
 
         private void ButtonParseHandler()
