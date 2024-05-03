@@ -30,11 +30,20 @@ namespace NameSplitter.ViewModels
 
         #region Properties
 
+        #region Buttons
+
         public DelegateCommand ButtonParse { get; set; }
         public DelegateCommand ButtonReset { get; set; }
         public DelegateCommand ButtonSave { get; set; }
 
+        #endregion Buttons
+
+        #region ObservableCollections
+
+        public ObservableCollection<string> AvailableTitles { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<ParseResponse> EnteredElements { get; set; } = new ObservableCollection<ParseResponse>();
+
+        #endregion ObservableCollections
 
         public bool Error
         {

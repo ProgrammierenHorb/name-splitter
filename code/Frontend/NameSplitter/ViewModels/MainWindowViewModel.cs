@@ -6,16 +6,16 @@ using System;
 
 namespace NameSplitter.ViewModels
 {
-    public class MainWindowViewModel : BindableBase
+    public class MainWindowViewModel: BindableBase
     {
-        private string _title = "Prism Application";
-
         public string Title
 
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
         }
+
+        private string _title = "NameSplitter";
 
         public MainWindowViewModel()
         { }
