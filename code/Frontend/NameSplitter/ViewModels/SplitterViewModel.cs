@@ -1,6 +1,7 @@
 ﻿using NameSplitter.DTOs;
 using NameSplitter.Events;
 using NameSplitter.Services;
+using NameSplitter.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -28,8 +29,6 @@ namespace NameSplitter.ViewModels
 
         #endregion privateVariables
 
-        #region Properties
-
         #region Buttons
 
         public DelegateCommand ButtonParse { get; set; }
@@ -44,6 +43,8 @@ namespace NameSplitter.ViewModels
         public ObservableCollection<ParseResponse> EnteredElements { get; set; } = new ObservableCollection<ParseResponse>();
 
         #endregion ObservableCollections
+
+        #region Properties
 
         public bool Error
         {
@@ -137,6 +138,8 @@ namespace NameSplitter.ViewModels
 
         #endregion Properties
 
+        private ParsedElements _parsedView = new ParsedElements();
+
         public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
         {
             _apiClient = apiClient;
@@ -157,15 +160,17 @@ namespace NameSplitter.ViewModels
                 if( result.StructuredName != null && result.StructuredName.Titles != null )
                     Titles = string.Join(", ", result.StructuredName.Titles);
 
-                StandardizedSalutation = result.StructuredName?.StandardizedSalutation;
+                //Standardizedsalutation = result.structuredname?.standardizedsalutation;
                 Gender = result.StructuredName?.Gender;
                 FirstName = result.StructuredName?.FirstName;
                 LastName = result.StructuredName?.LastName;
 
-                //Der Dispatcher-Thread wird benötigt, um die Collection in der GUI anpassen zu können
+                //der dispatcher-thread wird benötigt, um die collection in der gui anpassen zu können
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    EnteredElements.Add(result);
+                    _parsedView.DataContext = new ParsedElementsViewModel(_parsedView, result);
+                    _parsedView.ShowDialog();
+                    //enteredelements.add(result);
                 });
             });
         }

@@ -88,17 +88,17 @@
                             <Setter Property="VerticalContentAlignment" Value="Center" />
                             <Setter Property="Padding" Value="8" />
                             <Setter Property="BorderThickness" Value="3" />
-                            <Setter Property="IsEnabled" Value="False" />
+                            <Setter Property="IsEnabled" Value="True" />
                             <Setter Property="Background" Value="LightBlue" />
                         </Style>
                     </GridView.ColumnHeaderContainerStyle>
                     <GridViewColumn Header="Titel" DisplayMemberBinding="{Binding StructuredName.Titles,
-                        Converter={StaticResource StringToListConverterKey}}" Width="Auto" />
-                    <GridViewColumn Header="Vorname" DisplayMemberBinding="{Binding StructuredName.FirstName}" Width="Auto" />
-                    <GridViewColumn Header="Nachname" DisplayMemberBinding="{Binding StructuredName.LastName}" Width="Auto" />
+                        Converter={StaticResource StringToListConverterKey}}" Width="140" />
+                    <GridViewColumn Header="Vorname" DisplayMemberBinding="{Binding StructuredName.FirstName}" Width="140" />
+                    <GridViewColumn Header="Nachname" DisplayMemberBinding="{Binding StructuredName.LastName}" Width="140" />
                     <GridViewColumn Header="Briefanrede" DisplayMemberBinding="{Binding StructuredName.StandardizedSalutation}"
-                                    Width="Auto" />
-                    <GridViewColumn Header="Geschlecht" DisplayMemberBinding="{Binding StructuredName.Gender}" Width="Auto" />
+                                    Width="140" />
+                    <GridViewColumn Header="Geschlecht" DisplayMemberBinding="{Binding StructuredName.Gender}" Width="70" />
                 </GridView>
             </ListView.View>
         </ListView>
@@ -125,10 +125,10 @@
         <Button Grid.Row="4" Content="Zurücksetzen" Width="75" Height="24" VerticalAlignment="Center"
                 HorizontalAlignment="Left" Command="{Binding ButtonReset}" Background="OrangeRed" FontSize="12"
                 Grid.ColumnSpan="2" Margin="20,0,0,0" />
-        <Button Grid.Row="4" Grid.Column="2" Content="Speichern" Width="75" Height="24" VerticalAlignment="Center"
-                HorizontalAlignment="Left" Command="{Binding ButtonSave}" Background="LightGreen" FontSize="12"
-                Margin="282,0,0,0" RenderTransformOrigin="0.538,0.571" Grid.ColumnSpan="2" />
-        <Button Grid.Row="4" Grid.Column="4" Content="Hinzufügen" Width="75" Height="25" VerticalAlignment="Center"
+        <Button Grid.Row="4" Grid.Column="1" Content="Speichern" Width="75" Height="24" VerticalAlignment="Center"
+                HorizontalAlignment="Right" Command="{Binding ButtonSave}" Background="LightGreen" FontSize="12"
+                Margin="0,0,0,0" Grid.ColumnSpan="2" />
+        <Button Grid.Row="4" Grid.Column="4" Content="Hinzufügen" Width="75" Height="24" VerticalAlignment="Center"
                 HorizontalAlignment="Right" Command="{Binding ButtonReset}" Background="LightGray" FontSize="12" />
     </Grid>
 </UserControl>
