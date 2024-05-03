@@ -1,7 +1,6 @@
 ﻿using NameSplitter.DTOs;
 using NameSplitter.Views;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
 
 namespace NameSplitter.ViewModels
@@ -21,15 +20,13 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        private IEventAggregator _eventAggregator;
         private ParseResponse _parsedElement;
         private ParsedElements _parsedElementsView;
 
-        public ParsedElementsViewModel( ParsedElements parsedElementsView, ParseResponse parsedElement, IEventAggregator eventAggregator )
+        public ParsedElementsViewModel( ParsedElements parsedElementsView, ParseResponse parsedElement )
         {
             ParsedItems = parsedElement;
             _parsedElementsView = parsedElementsView;
-            _eventAggregator = eventAggregator;
             ButtonSave = new DelegateCommand(SaveParsedElementsButtonHandler);
             ButtonCancle = new DelegateCommand(CancleButtonHandler);
         }
