@@ -72,11 +72,12 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100" />
-                <ColumnDefinition Width="450" />
+                <ColumnDefinition Width="225" />
+                <ColumnDefinition Width="225" />
                 <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1">
-                <ListView ItemsSource="{Binding EnteredElements}" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="450" Height="200">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1" Grid.ColumnSpan="2">
+                <ListView ItemsSource="{Binding EnteredElements}" d:ItemsSource="{d:SampleData ItemCount=15}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="450" Height="200" SelectionMode="Single">
                     <ListView.View>
                         <GridView>
                             <GridView.ColumnHeaderContainerStyle>
@@ -98,6 +99,8 @@
                     </ListView.View>
                 </ListView>
             </ScrollViewer>
+            <Button Grid.Row="3" Grid.Column="1" Content="Zurücksetzen" Width="100" Height="25" VerticalAlignment="Center" HorizontalAlignment="Left" Command="{Binding ButtonReset}" Background="OrangeRed" FontSize="12" />
+            <Button Grid.Row="3" Grid.Column="2" Content="Speichern" Width="75" Height="25" VerticalAlignment="Center" HorizontalAlignment="Right" Command="{Binding ButtonSave}" Background="LightGreen" FontSize="12" />
         </Grid>
     </Grid>
 </UserControl>

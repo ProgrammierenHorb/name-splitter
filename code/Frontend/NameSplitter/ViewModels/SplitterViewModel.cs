@@ -31,6 +31,8 @@ namespace NameSplitter.ViewModels
         #region Properties
 
         public DelegateCommand ButtonParse { get; set; }
+        public DelegateCommand ButtonReset { get; set; }
+        public DelegateCommand ButtonSave { get; set; }
 
         public ObservableCollection<ParseResponse> EnteredElements { get; set; } = new ObservableCollection<ParseResponse>();
 
@@ -132,6 +134,9 @@ namespace NameSplitter.ViewModels
             _eventAggregator = eventAggregator;
 
             ButtonParse = new DelegateCommand(ButtonParseHandler);
+            ButtonReset = new DelegateCommand(ButtonResetHandler);
+            ButtonSave = new DelegateCommand(ButtonSaveHandler);
+
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
         }
 
@@ -154,6 +159,16 @@ namespace NameSplitter.ViewModels
                     EnteredElements.Add(result);
                 });
             });
+        }
+
+        private void ButtonResetHandler()
+        {
+            EnteredElements.Clear();
+        }
+
+        private void ButtonSaveHandler()
+        {
+            //EnteredElements.Clear();
         }
     }
 }
