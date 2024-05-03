@@ -1,9 +1,12 @@
-﻿using NameSplitter.Events;
+﻿using NameSplitter.DTOs;
+using NameSplitter.Events;
 using NameSplitter.Services;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace NameSplitter.ViewModels
 {
@@ -12,20 +15,13 @@ namespace NameSplitter.ViewModels
         #region privateVariables
 
         private IApiClient _apiClient;
+        private ObservableCollection<ParseResponse> _enteredElements = new ObservableCollection<ParseResponse>();
         private bool _error = false;
         private string _errorMessage = string.Empty;
         private IEventAggregator _eventAggregator;
         private string _firstname = "";
         private string _gender = "";
         private string _input = "";
-        private bool _isErrorChanged = false;
-        private bool _isErrorMessageChanged = false;
-        private bool _isFirstNameChanged = false;
-        private bool _isGenderChanged = false;
-        private bool _isLastNameChanged = false;
-        private bool _isSalutationChanged = false;
-        private bool _isStandardizedSalutationChanged = false;
-        private bool _isTitleChanged = false;
         private string _salutation = "";
         private string _standardizedSalutation = "";
         private string _surname = "";
@@ -37,15 +33,13 @@ namespace NameSplitter.ViewModels
 
         public DelegateCommand ButtonParse { get; set; }
 
+        public ObservableCollection<ParseResponse> EnteredElements { get; set; } = new ObservableCollection<ParseResponse>();
+
         public bool Error
         {
             get { return _error; }
             set
             {
-                if( !_error.Equals(value) )
-                {
-                    IsErrorChanged = true;
-                }
                 _error = value;
                 RaisePropertyChanged(nameof(Error));
             }
@@ -56,10 +50,6 @@ namespace NameSplitter.ViewModels
             get { return _errorMessage; }
             set
             {
-                if( !_errorMessage.Equals(value) )
-                {
-                    IsErrorMessageChanged = true;
-                }
                 _errorMessage = value;
                 RaisePropertyChanged(nameof(_errorMessage));
             }
@@ -70,10 +60,6 @@ namespace NameSplitter.ViewModels
             get { return _firstname; }
             set
             {
-                if( !_firstname.Equals(value) )
-                {
-                    IsFirstNameChanged = true;
-                }
                 _firstname = value;
                 RaisePropertyChanged(nameof(FirstName));
             }
@@ -84,10 +70,6 @@ namespace NameSplitter.ViewModels
             get { return _gender; }
             set
             {
-                if( !_gender.Equals(value) )
-                {
-                    IsGenderChanged = true;
-                }
                 _gender = value;
                 RaisePropertyChanged(nameof(Gender));
             }
@@ -103,95 +85,11 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public bool IsErrorChanged
-        {
-            get { return _isErrorChanged; }
-            set
-            {
-                _isErrorChanged = value;
-                RaisePropertyChanged(nameof(IsErrorChanged));
-            }
-        }
-
-        public bool IsErrorMessageChanged
-        {
-            get { return _isErrorMessageChanged; }
-            set
-            {
-                _isErrorMessageChanged = value;
-                RaisePropertyChanged(nameof(IsErrorMessageChanged));
-            }
-        }
-
-        public bool IsFirstNameChanged
-        {
-            get { return _isFirstNameChanged; }
-            set
-            {
-                _isFirstNameChanged = value;
-                RaisePropertyChanged(nameof(IsFirstNameChanged));
-            }
-        }
-
-        public bool IsGenderChanged
-        {
-            get { return _isGenderChanged; }
-            set
-            {
-                _isGenderChanged = value;
-                RaisePropertyChanged(nameof(IsGenderChanged));
-            }
-        }
-
-        public bool IsLastNameChanged
-        {
-            get { return _isLastNameChanged; }
-            set
-            {
-                _isLastNameChanged = value;
-                RaisePropertyChanged(nameof(IsLastNameChanged));
-            }
-        }
-
-        public bool IsSalutationChanged
-        {
-            get { return _isSalutationChanged; }
-            set
-            {
-                _isSalutationChanged = value;
-                RaisePropertyChanged(nameof(IsSalutationChanged));
-            }
-        }
-
-        public bool IsStandardizedSalutationChanged
-        {
-            get { return _isStandardizedSalutationChanged; }
-            set
-            {
-                _isStandardizedSalutationChanged = value;
-                RaisePropertyChanged(nameof(IsStandardizedSalutationChanged));
-            }
-        }
-
-        public bool IsTitleChanged
-        {
-            get { return _isTitleChanged; }
-            set
-            {
-                _isTitleChanged = value;
-                RaisePropertyChanged(nameof(IsTitleChanged));
-            }
-        }
-
         public string LastName
         {
             get { return _surname; }
             set
             {
-                if( !_surname.Equals(value) )
-                {
-                    IsLastNameChanged = true;
-                }
                 _surname = value;
                 RaisePropertyChanged(nameof(LastName));
             }
@@ -202,10 +100,6 @@ namespace NameSplitter.ViewModels
             get { return _salutation; }
             set
             {
-                if( !_salutation.Equals(value) )
-                {
-                    IsSalutationChanged = true;
-                }
                 _salutation = value;
                 RaisePropertyChanged(nameof(Salutation));
             }
@@ -216,10 +110,6 @@ namespace NameSplitter.ViewModels
             get { return _standardizedSalutation; }
             set
             {
-                if( _standardizedSalutation != null && !_standardizedSalutation.Equals(value) )
-                {
-                    IsStandardizedSalutationChanged = true;
-                }
                 _standardizedSalutation = value;
                 RaisePropertyChanged(nameof(StandardizedSalutation));
             }
@@ -230,10 +120,6 @@ namespace NameSplitter.ViewModels
             get { return _titles; }
             set
             {
-                if( !_titles.Equals(value) )
-                {
-                    IsTitleChanged = true;
-                }
                 _titles = value;
                 RaisePropertyChanged(nameof(Titles));
             }
@@ -248,6 +134,7 @@ namespace NameSplitter.ViewModels
 
             ButtonParse = new DelegateCommand(ButtonParseHandler);
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
+            EnteredElements.Add(new ParseResponse { ErrorMessage = "Test1", StructuredName = new Structuredname { FirstName = "Test" } });
         }
 
         private void ButtonParseHandler()
@@ -262,7 +149,12 @@ namespace NameSplitter.ViewModels
                 Gender = result.StructuredName?.Gender;
                 FirstName = result.StructuredName?.FirstName;
                 LastName = result.StructuredName?.LastName;
-                //Salutation = result.Structuredname.StandardizedSalutation;
+
+                //Der Dispatcher-Thread wird benötigt, um die Collection in der GUI anpassen zu können
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    EnteredElements.Add(result);
+                });
             });
         }
     }
