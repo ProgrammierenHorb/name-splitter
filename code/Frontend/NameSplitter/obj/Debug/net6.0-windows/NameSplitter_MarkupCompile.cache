@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET6_0;NETCOREAPP
 C:\Repos\name-splitter\code\Frontend\NameSplitter\App.xaml
-21987839307
+31863006014
 
-8-1450695891
-199429102475
-Views\MainWindowView.xaml;Views\SplitterView.xaml;
+12-2138621383
+201-763845462
+Views\MainWindowView.xaml;Views\ParsedElements.xaml;Views\SplitterView.xaml;
 
 False
 

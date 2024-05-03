@@ -58,3 +58,8 @@ C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\refin
 C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\NameSplitter.pdb
 C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\NameSplitter.genruntimeconfig.cache
 C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\ref\NameSplitter.dll
+C:\Repos\name-splitter\code\Frontend\NameSplitter\bin\Debug\net6.0-windows\MaterialDesignColors.dll
+C:\Repos\name-splitter\code\Frontend\NameSplitter\bin\Debug\net6.0-windows\MaterialDesignThemes.Wpf.dll
+C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\Views\ParsedElements.g.cs
+C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\Views\ParsedElements.baml

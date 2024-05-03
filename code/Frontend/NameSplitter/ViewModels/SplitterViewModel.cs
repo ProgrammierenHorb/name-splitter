@@ -11,11 +11,12 @@ using System.Windows;
 
 namespace NameSplitter.ViewModels
 {
-    public class SplitterViewModel: BindableBase
+    public class SplitterViewModel : BindableBase
     {
         #region privateVariables
 
         private IApiClient _apiClient;
+        private bool _dialogOpen = false;
         private bool _error = false;
         private string _errorMessage = string.Empty;
         private IEventAggregator _eventAggregator;
@@ -138,7 +139,46 @@ namespace NameSplitter.ViewModels
 
         #endregion Properties
 
-        private ParsedElements _parsedView = new ParsedElements();
+        //private ParsedElements _parsedView = new ParsedElements();
+
+        private void ButtonParseHandler()
+        {
+            if (!_dialogOpen)
+            {
+                _dialogOpen = true;
+                Task.Run(async () =>
+                {
+                    var result = await _apiClient.Parse(Input);
+                    if (result.StructuredName != null && result.StructuredName.Titles != null)
+                        Titles = string.Join(", ", result.StructuredName.Titles);
+
+                    //Standardizedsalutation = result.structuredname?.standardizedsalutation;
+                    Gender = result.StructuredName?.Gender;
+                    FirstName = result.StructuredName?.FirstName;
+                    LastName = result.StructuredName?.LastName;
+
+                    //der dispatcher-thread wird benötigt, um die collection in der gui anpassen zu können
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ParsedElements _parsedView = new ParsedElements();
+                        _parsedView.DataContext = new ParsedElementsViewModel(_parsedView, result);
+                        _parsedView.ShowDialog();
+                        //enteredelements.add(result);
+                    });
+                    _dialogOpen = false;
+                });
+            }
+        }
+
+        private void ButtonResetHandler()
+        {
+            EnteredElements.Clear();
+        }
+
+        private void ButtonSaveHandler()
+        {
+            //EnteredElements.Clear();
+        }
 
         public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
         {
@@ -150,39 +190,6 @@ namespace NameSplitter.ViewModels
             ButtonSave = new DelegateCommand(ButtonSaveHandler);
 
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
-        }
-
-        private void ButtonParseHandler()
-        {
-            Task.Run(async () =>
-            {
-                var result = await _apiClient.Parse(Input);
-                if( result.StructuredName != null && result.StructuredName.Titles != null )
-                    Titles = string.Join(", ", result.StructuredName.Titles);
-
-                //Standardizedsalutation = result.structuredname?.standardizedsalutation;
-                Gender = result.StructuredName?.Gender;
-                FirstName = result.StructuredName?.FirstName;
-                LastName = result.StructuredName?.LastName;
-
-                //der dispatcher-thread wird benötigt, um die collection in der gui anpassen zu können
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    _parsedView.DataContext = new ParsedElementsViewModel(_parsedView, result);
-                    _parsedView.ShowDialog();
-                    //enteredelements.add(result);
-                });
-            });
-        }
-
-        private void ButtonResetHandler()
-        {
-            EnteredElements.Clear();
-        }
-
-        private void ButtonSaveHandler()
-        {
-            //EnteredElements.Clear();
         }
     }
 }
