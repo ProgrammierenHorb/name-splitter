@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NameSplitter.Services
 {
-    public class ApiClient : IApiClient
+    public class ApiClient: IApiClient
     {
         private readonly HttpClient _client;
 
@@ -28,23 +28,23 @@ namespace NameSplitter.Services
                     useRegex
                 };
 
-                var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(parameters);
+                var jsonContent = JsonSerializer.Serialize(parameters);
 
                 var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
                 var response = await _client.PostAsync($"addTitle", content);
-                if (response.IsSuccessStatusCode)
+                if( response.IsSuccessStatusCode )
                 {
                     return JsonSerializer.Deserialize<AddTitleResponse>(await response.Content.ReadAsStringAsync());
                 }
 
                 return new AddTitleResponse { ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
             }
-            catch (HttpRequestException ex)
+            catch( HttpRequestException ex )
             {
                 return new AddTitleResponse { ErrorMessage = ex.Message };
             }
-            catch (Exception ex)
+            catch( Exception ex )
             {
                 return new AddTitleResponse { ErrorMessage = ex.Message };
             }
@@ -55,14 +55,14 @@ namespace NameSplitter.Services
             try
             {
                 var response = await _client.GetAsync($"getTitles");
-                if (response.IsSuccessStatusCode)
+                if( response.IsSuccessStatusCode )
                 {
                     return JsonSerializer.Deserialize<List<string>>(await response.Content.ReadAsStringAsync());
                 }
 
                 return new List<string> { "Keine Titel verfügbar" };
             }
-            catch (Exception)
+            catch( Exception )
             {
                 return new List<string> { "Keine Titel verfügbar" };
             }
@@ -73,7 +73,7 @@ namespace NameSplitter.Services
             try
             {
                 var response = await _client.GetAsync($"parse/{input}");
-                if (response.IsSuccessStatusCode)
+                if( response.IsSuccessStatusCode )
                 {
                     var test = await response.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<ParseResponseDto>(await response.Content.ReadAsStringAsync());
@@ -81,11 +81,11 @@ namespace NameSplitter.Services
 
                 return new ParseResponseDto { Error = true, ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
             }
-            catch (HttpRequestException ex)
+            catch( HttpRequestException ex )
             {
                 return new ParseResponseDto { Error = true, ErrorMessage = ex.Message };
             }
-            catch (Exception ex)
+            catch( Exception ex )
             {
                 return new ParseResponseDto { Error = true, ErrorMessage = "Beim Parsen trat ein Fehler auf:" + ex.Message };
             }
