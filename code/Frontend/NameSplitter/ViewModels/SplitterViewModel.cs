@@ -6,7 +6,9 @@ using NameSplitter.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -24,6 +26,7 @@ namespace NameSplitter.ViewModels
         private string _firstname = "";
         private GenderEnum _gender;
         private string _input = "";
+        private Guid _key;
         private string _salutation = "";
         private string _surname = "";
         private string _titles = "";
@@ -95,6 +98,11 @@ namespace NameSplitter.ViewModels
                 _input = value;
                 RaisePropertyChanged(nameof(Input));
             }
+        }
+
+        public Guid Key
+        {
+            get { return _key; }
         }
 
         public string LastName
@@ -198,6 +206,7 @@ namespace NameSplitter.ViewModels
                         Gender = result.StructuredName.Gender;
                         FirstName = result.StructuredName.FirstName;
                         LastName = result.StructuredName.LastName;
+                        _key = Guid.NewGuid();
                     }
 
                     //der dispatcher-thread wird benötigt, um die GUI anpassen zu können
@@ -228,7 +237,7 @@ namespace NameSplitter.ViewModels
         {
             return gender switch
             {
-                GenderEnum.MALE => "Männlích",
+                GenderEnum.MALE => "Männlich",
                 GenderEnum.FEMALE => "Weiblich",
                 GenderEnum.DIVERSE => "Divers",
                 _ => "Unbekannt",
@@ -242,10 +251,15 @@ namespace NameSplitter.ViewModels
             _parsedView.ShowDialog();
         }
 
-        private void UpdateParsedElementsList( StructuredName updatedList )
+        private void UpdateParsedElementsList( StructuredName updatedElement )
         {
-            updatedList.GenderString = ConvertGenderEnumToString(updatedList.Gender);
-            EnteredElements.Add(updatedList);
+            bool listContainsElement = EnteredElements.Any(element => element.Key == updatedElement.Key);
+            updatedElement.GenderString = ConvertGenderEnumToString(updatedElement.Gender);
+
+            if( listContainsElement )
+                EnteredElements.Remove(EnteredElements.Where(element => element.Key == updatedElement.Key).Single());
+
+            EnteredElements.Add(updatedElement);
         }
     }
 }

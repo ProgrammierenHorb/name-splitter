@@ -40,6 +40,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _diversIsChecked = value;
+                if( _diversIsChecked ) _gender = GenderEnum.DIVERSE;
                 RaisePropertyChanged(nameof(DiversIsChecked));
             }
         }
@@ -50,6 +51,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _femaleIsChecked = value;
+                if( _femaleIsChecked ) _gender = GenderEnum.FEMALE;
                 RaisePropertyChanged(nameof(FemaleIsChecked));
             }
         }
@@ -90,6 +92,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _maleIsChecked = value;
+                if( _maleIsChecked ) _gender = GenderEnum.MALE;
                 RaisePropertyChanged(nameof(MaleIsChecked));
             }
         }
@@ -194,6 +197,10 @@ namespace NameSplitter.ViewModels
             Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
 
             InitRadioButtons();
+        }
+
+        private void SetGender()
+        {
         }
     }
 }

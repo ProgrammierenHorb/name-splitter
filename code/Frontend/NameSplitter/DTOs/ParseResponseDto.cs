@@ -1,4 +1,5 @@
 ﻿using NameSplitter.Enum;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -54,6 +55,9 @@ namespace NameSplitter.DTOs
                 }
             }
         }
+
+        [JsonIgnore]
+        public Guid Key { get; set; }
 
         [JsonPropertyName("lastName")]
         public string LastName { get; set; }
