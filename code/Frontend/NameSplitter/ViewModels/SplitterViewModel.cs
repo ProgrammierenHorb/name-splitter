@@ -32,6 +32,7 @@ namespace NameSplitter.ViewModels
 
         #region Buttons
 
+        public DelegateCommand AddTitleCommand { get; set; }
         public DelegateCommand ButtonParse { get; set; }
         public DelegateCommand ButtonReset { get; set; }
         public DelegateCommand ButtonSave { get; set; }
@@ -139,6 +140,7 @@ namespace NameSplitter.ViewModels
             ButtonParse = new DelegateCommand(ButtonParseHandler);
             ButtonReset = new DelegateCommand(ButtonResetHandler);
             ButtonSave = new DelegateCommand(ButtonSaveHandler);
+            AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
 
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
             _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
@@ -151,6 +153,30 @@ namespace NameSplitter.ViewModels
                     AvailableTitles.AddRange(titles);
                 });
             });
+        }
+
+        private void AddTitleCommandHandler()
+        {
+            if( !_dialogOpen )
+            {
+                _dialogOpen = true;
+
+                AddTitleView _view = new AddTitleView();
+                _view.DataContext = new AddTitleViewModel(_view, _apiClient);
+                _view.ShowDialog();
+
+                _dialogOpen = false;
+
+                //refresh
+                Task.Run(async () =>
+                {
+                    var titles = await _apiClient.GetTitles();
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        AvailableTitles.AddRange(titles);
+                    });
+                });
+            }
         }
 
         private void ButtonParseHandler()

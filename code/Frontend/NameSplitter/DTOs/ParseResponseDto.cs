@@ -4,6 +4,12 @@ using System.Text.Json.Serialization;
 
 namespace NameSplitter.DTOs
 {
+    public class AddTitleResponse
+    {
+        [JsonPropertyName("errorMessage")]
+        public string ErrorMessage { get; set; }
+    }
+
     public class ParseResponseDto
     {
         [JsonPropertyName("error")]
