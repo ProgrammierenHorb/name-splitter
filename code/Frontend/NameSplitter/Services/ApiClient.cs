@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -42,6 +43,7 @@ namespace NameSplitter.Services
                 var response = await _client.GetAsync($"parse/{input}");
                 if( response.IsSuccessStatusCode )
                 {
+                    var test = await response.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<ParseResponseDto>(await response.Content.ReadAsStringAsync());
                 }
 
@@ -57,14 +59,27 @@ namespace NameSplitter.Services
             }
         }
 
-        public Task<bool> SaveNewTitle( string title )
+        public async Task<bool> SaveNewTitle( string title )
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> SaveParsedElement( ParseResponseDto response )
+        public async Task<bool> SaveParsedElement( StructuredName structuredName )
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _client.PostAsJsonAsync($"save", structuredName);
+                if( response.IsSuccessStatusCode )
+                {
+                    return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
+                }
+
+                return false;
+            }
+            catch( Exception )
+            {
+                return false;
+            }
         }
     }
 }

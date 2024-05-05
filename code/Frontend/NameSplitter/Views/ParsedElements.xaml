@@ -7,7 +7,7 @@
         xmlns:viewmodels="clr-namespace:NameSplitter.ViewModels"
         d:DataContext="{d:DesignInstance Type=viewmodels:ParsedElementsViewModel}"
         mc:Ignorable="d"
-        Title="ParsedElements" MinHeight="400" MinWidth="400" Height="400" Width="400">
+        Title="Rückgabe des Parsers" MinHeight="400" MinWidth="400" Height="400" Width="400">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*" />
@@ -17,23 +17,37 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="5*" />
-            <RowDefinition Height="30*" />
-            <RowDefinition Height="30*" />
-            <RowDefinition Height="30*" />
-            <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="5*" />
         </Grid.RowDefinitions>
-
+        <Label Content="{Binding ResponseText}" />
         <materialDesign:PackIcon HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1" Margin="0 0 0 10" Kind="Person" Width="30" Height="30" VerticalAlignment="Center" />
         <materialDesign:PackIcon HorizontalAlignment="Center" Grid.Column="0" Grid.Row="2" Margin="0 0 0 10" Kind="Person" Width="30" Height="30" VerticalAlignment="Center" />
         <materialDesign:PackIcon HorizontalAlignment="Center" Grid.Column="0" Grid.Row="3" Margin="0 0 0 10" Kind="Person" Width="30" Height="30" VerticalAlignment="Center" />
-        <Button VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="4" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Center"
-            Command="{Binding ButtonCancle}" Background="LightGray" FontSize="12" Grid.ColumnSpan="2" />
 
-        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="1" Margin="0 0 0 10" Width="Auto" Height="30" Text="Titel" VerticalAlignment="Center" />
-        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="2" Margin="0 0 0 10" Width="Auto" Height="30" Text="Vorname" VerticalAlignment="Center" />
-        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="3" Margin="0 0 0 10" Width="Auto" Height="30" Text="Nachname" VerticalAlignment="Center" />
-        <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="4" Width="100" Height="30" Content="Speichern" VerticalAlignment="Center"
+        <!--<TextBox Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="1" Margin="0 0 0 10" Width="Auto" Height="30" Text="{Binding ParsedItems.StructuredName.Titles}" VerticalAlignment="Center" />-->
+        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="2" Margin="0 0 0 10" Width="Auto" Height="30" Text="{Binding ParsedItems.StructuredName.FirstName}" VerticalAlignment="Center" />
+        <TextBox Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="3" Margin="0 0 0 10" Width="Auto" Height="30" Text="{Binding ParsedItems.StructuredName.LastName}" VerticalAlignment="Center" />
+
+        <Grid Grid.Row="4" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30*" />
+                <ColumnDefinition Width="30*" />
+                <ColumnDefinition Width="30*" />
+            </Grid.ColumnDefinitions>
+
+            <RadioButton Grid.Column="0" Content="Männlich" IsChecked="{Binding MaleIsChecked}" />
+            <RadioButton Grid.Column="1" Content="Weiblich" IsChecked="{Binding FemaleIsChecked}" />
+            <RadioButton Grid.Column="2" Content="Divers" IsChecked="{Binding DiversIsChecked}" />
+        </Grid>
+
+        <Button VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="6" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Center"
+            Command="{Binding ButtonCancle}" Background="LightGray" FontSize="12" Grid.ColumnSpan="2" />
+        <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="6" Width="100" Height="30" Content="Speichern" VerticalAlignment="Center"
             HorizontalAlignment="Right" Command="{Binding ButtonSave}" Background="LightGray" FontSize="12" />
     </Grid>
 </Window>

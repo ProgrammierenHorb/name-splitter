@@ -1,4 +1,5 @@
 ﻿using NameSplitter.DTOs;
+using NameSplitter.Enum;
 using NameSplitter.Events;
 using NameSplitter.Services;
 using NameSplitter.Views;
@@ -21,10 +22,9 @@ namespace NameSplitter.ViewModels
         private string _errorMessage = string.Empty;
         private IEventAggregator _eventAggregator;
         private string _firstname = "";
-        private string _gender = "";
+        private GenderEnum _gender;
         private string _input = "";
         private string _salutation = "";
-        private string _standardizedSalutation = "";
         private string _surname = "";
         private string _titles = "";
 
@@ -41,7 +41,7 @@ namespace NameSplitter.ViewModels
         #region ObservableCollections
 
         public ObservableCollection<string> AvailableTitles { get; set; } = new ObservableCollection<string>();
-        public ObservableCollection<ParseResponseDto> EnteredElements { get; set; } = new ObservableCollection<ParseResponseDto>();
+        public ObservableCollection<StructuredName> EnteredElements { get; set; } = new ObservableCollection<StructuredName>();
 
         #endregion ObservableCollections
 
@@ -77,7 +77,7 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public string Gender
+        public GenderEnum Gender
         {
             get { return _gender; }
             set
@@ -117,16 +117,6 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public string StandardizedSalutation
-        {
-            get { return _standardizedSalutation; }
-            set
-            {
-                _standardizedSalutation = value;
-                RaisePropertyChanged(nameof(StandardizedSalutation));
-            }
-        }
-
         public string Titles
         {
             get { return _titles; }
@@ -151,6 +141,7 @@ namespace NameSplitter.ViewModels
             ButtonSave = new DelegateCommand(ButtonSaveHandler);
 
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
+            _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
 
             Task.Run(async () =>
             {
@@ -170,15 +161,19 @@ namespace NameSplitter.ViewModels
                 Task.Run(async () =>
                 {
                     var result = await _apiClient.Parse(Input);
-                    if( result.StructuredName != null && result.StructuredName.Titles != null )
-                        Titles = string.Join(", ", result.StructuredName.Titles);
 
-                    //Standardizedsalutation = result.structuredname?.standardizedsalutation;
-                    Gender = result.StructuredName?.Gender;
-                    FirstName = result.StructuredName?.FirstName;
-                    LastName = result.StructuredName?.LastName;
                     Error = result.Error;
                     ErrorMessage = result.ErrorMessage;
+
+                    if( result.StructuredName is not null )
+                    {
+                        if( result.StructuredName.Titles != null )
+                            Titles = string.Join(", ", result.StructuredName.Titles);
+
+                        Gender = result.StructuredName.Gender;
+                        FirstName = result.StructuredName.FirstName;
+                        LastName = result.StructuredName.LastName;
+                    }
 
                     //der dispatcher-thread wird benötigt, um die collection in der gui anpassen zu können
                     Application.Current.Dispatcher.Invoke(() =>
@@ -192,7 +187,7 @@ namespace NameSplitter.ViewModels
                         else
                         {
                             ParsedElements _parsedView = new ParsedElements();
-                            _parsedView.DataContext = new ParsedElementsViewModel(_parsedView, result);
+                            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, result);
                             _parsedView.ShowDialog();
                         }
                     });
@@ -209,6 +204,11 @@ namespace NameSplitter.ViewModels
         private void ButtonSaveHandler()
         {
             //EnteredElements.Clear();
+        }
+
+        private void UpdateParsedElementsList( StructuredName updatedList )
+        {
+            EnteredElements.Add(updatedList);
         }
     }
 }

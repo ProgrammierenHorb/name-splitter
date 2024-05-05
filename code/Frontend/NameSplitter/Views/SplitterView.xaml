@@ -92,13 +92,13 @@
                             <Setter Property="Background" Value="LightBlue" />
                         </Style>
                     </GridView.ColumnHeaderContainerStyle>
-                    <GridViewColumn Header="Titel" DisplayMemberBinding="{Binding StructuredName.Titles,
+                    <GridViewColumn Header="Titel" DisplayMemberBinding="{Binding Titles,
                         Converter={StaticResource StringToListConverterKey}}" Width="140" />
-                    <GridViewColumn Header="Vorname" DisplayMemberBinding="{Binding StructuredName.FirstName}" Width="140" />
-                    <GridViewColumn Header="Nachname" DisplayMemberBinding="{Binding StructuredName.LastName}" Width="140" />
-                    <GridViewColumn Header="Briefanrede" DisplayMemberBinding="{Binding StructuredName.StandardizedSalutation}"
+                    <GridViewColumn Header="Vorname" DisplayMemberBinding="{Binding FirstName}" Width="140" />
+                    <GridViewColumn Header="Nachname" DisplayMemberBinding="{Binding LastName}" Width="140" />
+                    <GridViewColumn Header="Briefanrede" DisplayMemberBinding="{Binding StandardizedSalutation}"
                                     Width="140" />
-                    <GridViewColumn Header="Geschlecht" DisplayMemberBinding="{Binding StructuredName.Gender}" Width="70" />
+                    <GridViewColumn Header="Geschlecht" DisplayMemberBinding="{Binding Gender}" Width="70" />
                 </GridView>
             </ListView.View>
         </ListView>
