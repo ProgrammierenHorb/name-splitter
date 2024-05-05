@@ -1,0 +1,38 @@
+﻿<Window x:Class="NameSplitter.Views.AddTitleView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NameSplitter.Views"
+        mc:Ignorable="d"
+        Title="Titel hinzufügen" MinHeight="175" MinWidth="400" Height="175" Width="400">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="70*" />
+            <ColumnDefinition Width="4*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="4*" />
+            <RowDefinition Height="20*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="10*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Column="1" Grid.Row="1">
+            <TextBlock Width="Auto" VerticalAlignment="Center" Text="Titel:" />
+            <TextBox VerticalContentAlignment="Center" Width="Auto" Height="30" VerticalAlignment="Center" Text="{Binding Input}" />
+            <DockPanel Margin="0,10,0,0">
+                <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding UseRegex}" ></CheckBox>
+                <TextBlock Text="Regex aktivieren" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" />
+                <!-- default titel wenn regex genutzt -->
+            </DockPanel>
+        </StackPanel>
+
+        <Button  Grid.Column="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Center"
+        Command="{Binding ButtonCancle}" Background="LightGray" FontSize="12" Grid.ColumnSpan="2" />
+        <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="3" Width="100" Height="30" Content="Speichern" VerticalAlignment="Center"
+        HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" Background="LightGray" FontSize="12" />
+    </Grid>
+</Window>

@@ -128,6 +128,6 @@
                 HorizontalAlignment="Right" Command="{Binding ButtonSave}" Background="LightGreen" FontSize="12"
                 Margin="0,0,0,0" Grid.ColumnSpan="2" />
         <Button Grid.Row="4" Grid.Column="4" Content="Hinzufügen" Width="75" Height="24" VerticalAlignment="Center"
-                HorizontalAlignment="Right" Command="{Binding ButtonReset}" Background="LightGray" FontSize="12" />
+                HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" Background="LightGray" FontSize="12" />
     </Grid>
 </UserControl>
