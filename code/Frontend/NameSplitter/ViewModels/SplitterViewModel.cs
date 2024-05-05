@@ -11,7 +11,7 @@ using System.Windows;
 
 namespace NameSplitter.ViewModels
 {
-    public class SplitterViewModel : BindableBase
+    public class SplitterViewModel: BindableBase
     {
         #region privateVariables
 
@@ -141,29 +141,60 @@ namespace NameSplitter.ViewModels
 
         //private ParsedElements _parsedView = new ParsedElements();
 
+        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
+        {
+            _apiClient = apiClient;
+            _eventAggregator = eventAggregator;
+
+            ButtonParse = new DelegateCommand(ButtonParseHandler);
+            ButtonReset = new DelegateCommand(ButtonResetHandler);
+            ButtonSave = new DelegateCommand(ButtonSaveHandler);
+
+            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
+
+            Task.Run(async () =>
+            {
+                var titles = await _apiClient.GetTitles();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    AvailableTitles.AddRange(titles);
+                });
+            });
+        }
+
         private void ButtonParseHandler()
         {
-            if (!_dialogOpen)
+            if( !_dialogOpen )
             {
                 _dialogOpen = true;
                 Task.Run(async () =>
                 {
                     var result = await _apiClient.Parse(Input);
-                    if (result.StructuredName != null && result.StructuredName.Titles != null)
+                    if( result.StructuredName != null && result.StructuredName.Titles != null )
                         Titles = string.Join(", ", result.StructuredName.Titles);
 
                     //Standardizedsalutation = result.structuredname?.standardizedsalutation;
                     Gender = result.StructuredName?.Gender;
                     FirstName = result.StructuredName?.FirstName;
                     LastName = result.StructuredName?.LastName;
+                    Error = result.Error;
+                    ErrorMessage = result.ErrorMessage;
 
                     //der dispatcher-thread wird benötigt, um die collection in der gui anpassen zu können
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        ParsedElements _parsedView = new ParsedElements();
-                        _parsedView.DataContext = new ParsedElementsViewModel(_parsedView, result);
-                        _parsedView.ShowDialog();
-                        //enteredelements.add(result);
+                        if( Error && ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte") )
+                        {
+                            MessageBox.Show("Der Server konnte nicht erreicht werden \nBitte überprüfen Sie, ob das Backend gestartert wurde. " +
+                                "Den Status können Sie unter http://localhost:8080/api/status abfragen.", "Keine Verbindung zum Server möglich", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            ParsedElements _parsedView = new ParsedElements();
+                            _parsedView.DataContext = new ParsedElementsViewModel(_parsedView, result);
+                            _parsedView.ShowDialog();
+                        }
                     });
                     _dialogOpen = false;
                 });
@@ -178,18 +209,6 @@ namespace NameSplitter.ViewModels
         private void ButtonSaveHandler()
         {
             //EnteredElements.Clear();
-        }
-
-        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
-        {
-            _apiClient = apiClient;
-            _eventAggregator = eventAggregator;
-
-            ButtonParse = new DelegateCommand(ButtonParseHandler);
-            ButtonReset = new DelegateCommand(ButtonResetHandler);
-            ButtonSave = new DelegateCommand(ButtonSaveHandler);
-
-            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
         }
     }
 }
