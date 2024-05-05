@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NameSplitter.DTOs
 {
-    public class ParseResponse
+    public class ParseResponseDto
     {
         [JsonPropertyName("error")]
         public bool Error { get; set; }

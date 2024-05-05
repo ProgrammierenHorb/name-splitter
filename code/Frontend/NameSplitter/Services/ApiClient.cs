@@ -35,26 +35,36 @@ namespace NameSplitter.Services
             }
         }
 
-        public async Task<ParseResponse> Parse( string input )
+        public async Task<ParseResponseDto> Parse( string input )
         {
             try
             {
                 var response = await _client.GetAsync($"parse/{input}");
                 if( response.IsSuccessStatusCode )
                 {
-                    return JsonSerializer.Deserialize<ParseResponse>(await response.Content.ReadAsStringAsync());
+                    return JsonSerializer.Deserialize<ParseResponseDto>(await response.Content.ReadAsStringAsync());
                 }
 
-                return new ParseResponse { Error = true, ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
+                return new ParseResponseDto { Error = true, ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
             }
             catch( HttpRequestException ex )
             {
-                return new ParseResponse { Error = true, ErrorMessage = ex.Message };
+                return new ParseResponseDto { Error = true, ErrorMessage = ex.Message };
             }
             catch( Exception ex )
             {
-                return new ParseResponse { Error = true, ErrorMessage = "Beim Parsen trat ein Fehler auf:" + ex.Message };
+                return new ParseResponseDto { Error = true, ErrorMessage = "Beim Parsen trat ein Fehler auf:" + ex.Message };
             }
+        }
+
+        public Task<bool> SaveNewTitle( string title )
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> SaveParsedElement( ParseResponseDto response )
+        {
+            throw new NotImplementedException();
         }
     }
 }

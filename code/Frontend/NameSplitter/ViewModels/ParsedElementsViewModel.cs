@@ -10,7 +10,7 @@ namespace NameSplitter.ViewModels
         public DelegateCommand ButtonCancle { get; set; }
         public DelegateCommand ButtonSave { get; set; }
 
-        public ParseResponse ParsedItems
+        public ParseResponseDto ParsedItems
         {
             get { return _parsedElement; }
             set
@@ -20,10 +20,10 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        private ParseResponse _parsedElement;
+        private ParseResponseDto _parsedElement;
         private ParsedElements _parsedElementsView;
 
-        public ParsedElementsViewModel( ParsedElements parsedElementsView, ParseResponse parsedElement )
+        public ParsedElementsViewModel( ParsedElements parsedElementsView, ParseResponseDto parsedElement )
         {
             ParsedItems = parsedElement;
             _parsedElementsView = parsedElementsView;

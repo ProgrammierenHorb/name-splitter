@@ -41,7 +41,7 @@ namespace NameSplitter.ViewModels
         #region ObservableCollections
 
         public ObservableCollection<string> AvailableTitles { get; set; } = new ObservableCollection<string>();
-        public ObservableCollection<ParseResponse> EnteredElements { get; set; } = new ObservableCollection<ParseResponse>();
+        public ObservableCollection<ParseResponseDto> EnteredElements { get; set; } = new ObservableCollection<ParseResponseDto>();
 
         #endregion ObservableCollections
 
