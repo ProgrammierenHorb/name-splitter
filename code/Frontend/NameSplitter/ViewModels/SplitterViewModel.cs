@@ -35,7 +35,6 @@ namespace NameSplitter.ViewModels
         public DelegateCommand AddTitleCommand { get; set; }
         public DelegateCommand ButtonParse { get; set; }
         public DelegateCommand ButtonReset { get; set; }
-        public DelegateCommand ButtonSave { get; set; }
 
         #endregion Buttons
 
@@ -139,11 +138,11 @@ namespace NameSplitter.ViewModels
 
             ButtonParse = new DelegateCommand(ButtonParseHandler);
             ButtonReset = new DelegateCommand(ButtonResetHandler);
-            ButtonSave = new DelegateCommand(ButtonSaveHandler);
             AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
 
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
             _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
+            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(OpenParsedElementsView);
 
             Task.Run(async () =>
             {
@@ -201,7 +200,7 @@ namespace NameSplitter.ViewModels
                         LastName = result.StructuredName.LastName;
                     }
 
-                    //der dispatcher-thread wird benötigt, um die collection in der gui anpassen zu können
+                    //der dispatcher-thread wird benötigt, um die GUI anpassen zu können
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         if( Error && ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte") )
@@ -212,9 +211,7 @@ namespace NameSplitter.ViewModels
                         }
                         else
                         {
-                            ParsedElements _parsedView = new ParsedElements();
-                            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, result);
-                            _parsedView.ShowDialog();
+                            OpenParsedElementsView(result);
                         }
                     });
                     _dialogOpen = false;
@@ -227,13 +224,27 @@ namespace NameSplitter.ViewModels
             EnteredElements.Clear();
         }
 
-        private void ButtonSaveHandler()
+        private string ConvertGenderEnumToString( GenderEnum gender )
         {
-            //EnteredElements.Clear();
+            return gender switch
+            {
+                GenderEnum.MALE => "Männlích",
+                GenderEnum.FEMALE => "Weiblich",
+                GenderEnum.DIVERSE => "Divers",
+                _ => "Unbekannt",
+            };
+        }
+
+        private void OpenParsedElementsView( ParseResponseDto parseResponse )
+        {
+            ParsedElements _parsedView = new ParsedElements();
+            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, parseResponse);
+            _parsedView.ShowDialog();
         }
 
         private void UpdateParsedElementsList( StructuredName updatedList )
         {
+            updatedList.GenderString = ConvertGenderEnumToString(updatedList.Gender);
             EnteredElements.Add(updatedList);
         }
     }

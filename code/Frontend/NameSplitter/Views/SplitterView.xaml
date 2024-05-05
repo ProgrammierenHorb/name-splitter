@@ -4,7 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:NameSplitter="clr-namespace:NameSplitter"
+             xmlns:NameSplitter="clr-namespace:NameSplitter.Converter"
              xmlns:viewmodels="clr-namespace:NameSplitter.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewmodels:SplitterViewModel}"
              mc:Ignorable="d"
@@ -71,8 +71,8 @@
                 <ColumnDefinition Width="70*" />
                 <ColumnDefinition Width="20*" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Eingabe" Margin="5" HorizontalAlignment="Right" />
-            <TextBox  Grid.Column="1" x:Name="inputTextBox" VerticalContentAlignment="Center" Margin="5" Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Eingabe:" Margin="5" HorizontalAlignment="Right" />
+            <TextBox Grid.Column="1" x:Name="inputTextBox" VerticalContentAlignment="Center" Margin="5" Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}" />
             <Button  Grid.Column="2" Content="Parsen" Width="80" Margin="5" Command="{Binding ButtonParse}" />
         </Grid>
         <Label Grid.Row="2" VerticalAlignment="Bottom" FontWeight="Bold" FontSize="10" Grid.Column="1" Grid.ColumnSpan="2"
@@ -98,7 +98,7 @@
                     <GridViewColumn Header="Nachname" DisplayMemberBinding="{Binding LastName}" Width="140" />
                     <GridViewColumn Header="Briefanrede" DisplayMemberBinding="{Binding StandardizedSalutation}"
                                     Width="140" />
-                    <GridViewColumn Header="Geschlecht" DisplayMemberBinding="{Binding Gender}" Width="70" />
+                    <GridViewColumn Header="Geschlecht" DisplayMemberBinding="{Binding GenderString}" Width="80" />
                 </GridView>
             </ListView.View>
         </ListView>
@@ -124,10 +124,7 @@
         <Button Grid.Row="4" Content="Zurücksetzen" Width="75" Height="24" VerticalAlignment="Center"
                 HorizontalAlignment="Left" Command="{Binding ButtonReset}" Background="OrangeRed" FontSize="12"
                 Grid.ColumnSpan="2" Margin="20,0,0,0" />
-        <Button Grid.Row="4" Grid.Column="1" Content="Speichern" Width="75" Height="24" VerticalAlignment="Center"
-                HorizontalAlignment="Right" Command="{Binding ButtonSave}" Background="LightGreen" FontSize="12"
-                Margin="0,0,0,0" Grid.ColumnSpan="2" />
         <Button Grid.Row="4" Grid.Column="4" Content="Hinzufügen" Width="75" Height="24" VerticalAlignment="Center"
-                HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" Background="LightGray" FontSize="12" />
+                HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" Background="LightGreen" FontSize="12" />
     </Grid>
 </UserControl>

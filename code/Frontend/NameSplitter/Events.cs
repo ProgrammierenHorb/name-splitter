@@ -3,6 +3,9 @@ using Prism.Events;
 
 namespace NameSplitter.Events
 {
+    public class OpenParsedElementsView: PubSubEvent<ParseResponseDto>
+    { }
+
     public class ParseEvent: PubSubEvent
     { }
 

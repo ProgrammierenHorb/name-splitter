@@ -6,10 +6,12 @@ using NameSplitter.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace NameSplitter.ViewModels
 {
-    internal class ParsedElementsViewModel: BindableBase
+    public class ParsedElementsViewModel: BindableBase
     {
         public DelegateCommand ButtonCancle { get; set; }
         public DelegateCommand ButtonSave { get; set; }
@@ -20,10 +22,13 @@ namespace NameSplitter.ViewModels
         private bool _diversIsChecked = false;
         private IEventAggregator _eventAggregator;
         private bool _femaleIsChecked = false;
+        private string _firstName;
+        private GenderEnum _gender;
+        private string _lastName;
         private bool _maleIsChecked = false;
-        private ParseResponseDto _parsedElement;
         private ParsedElements _parsedElementsView;
         private string _responseText;
+        private string _standardizedSalutation;
 
         #endregion private variables
 
@@ -49,6 +54,36 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        public string FirstName
+        {
+            get { return _firstName; }
+            set
+            {
+                _firstName = value;
+                RaisePropertyChanged(nameof(FirstName));
+            }
+        }
+
+        public GenderEnum Gender
+        {
+            get { return _gender; }
+            set
+            {
+                _gender = value;
+                RaisePropertyChanged(nameof(Gender));
+            }
+        }
+
+        public string LastName
+        {
+            get { return _lastName; }
+            set
+            {
+                _lastName = value;
+                RaisePropertyChanged(nameof(LastName));
+            }
+        }
+
         public bool MaleIsChecked
         {
             get { return _maleIsChecked; }
@@ -56,16 +91,6 @@ namespace NameSplitter.ViewModels
             {
                 _maleIsChecked = value;
                 RaisePropertyChanged(nameof(MaleIsChecked));
-            }
-        }
-
-        public ParseResponseDto ParsedItems
-        {
-            get { return _parsedElement; }
-            set
-            {
-                _parsedElement = value;
-                RaisePropertyChanged(nameof(ParsedItems));
             }
         }
 
@@ -79,6 +104,18 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        public string StandardizedSalutation
+        {
+            get { return _standardizedSalutation; }
+            set
+            {
+                _standardizedSalutation = value;
+                RaisePropertyChanged(nameof(StandardizedSalutation));
+            }
+        }
+
+        public ObservableCollection<TitleDto> Titles { get; set; } = new ObservableCollection<TitleDto>();
+
         #endregion Properties
 
         public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement )
@@ -86,26 +123,23 @@ namespace NameSplitter.ViewModels
             _apiClient = apiClient;
             _eventAggregator = eventAggregator;
             _parsedElementsView = parsedElementsView;
-            _responseText = "Test";
-
-            ParsedItems = parsedElement;
 
             ButtonSave = new DelegateCommand(SaveParsedElementsButtonHandler);
             ButtonCancle = new DelegateCommand(CancleButtonHandler);
 
-            InitializeRadioButtons(ParsedItems.StructuredName?.Gender ?? GenderEnum.DIVERSE);
+            InitView(parsedElement);
         }
 
         public void CancleButtonHandler() =>
             _parsedElementsView.Close();
 
-        public void InitializeRadioButtons( GenderEnum gender )
+        public void InitRadioButtons()
         {
             _diversIsChecked = false;
             _maleIsChecked = false;
             _femaleIsChecked = false;
 
-            switch( gender )
+            switch( Gender )
             {
                 case GenderEnum.MALE:
                     _maleIsChecked = true;
@@ -123,12 +157,43 @@ namespace NameSplitter.ViewModels
 
         public async void SaveParsedElementsButtonHandler()
         {
-            //TODO: SplitterViewModel Properties updaten;
-            bool successful = await _apiClient.SaveParsedElement(ParsedItems.StructuredName);
-            if( successful )
-                _eventAggregator.GetEvent<UpdateParsedList>().Publish(ParsedItems.StructuredName);
+            StructuredName structuredName = new StructuredName
+            {
+                Titles = this.Titles.Select(x => x.Title).ToList(),
+                FirstName = this.FirstName,
+                LastName = this.LastName,
+                GenderString = this.Gender.ToString(),
+                StandardizedSalutation = this.StandardizedSalutation,
+            };
+
+            if( await _apiClient.SaveParsedElement(structuredName) )
+                _eventAggregator.GetEvent<UpdateParsedList>().Publish(structuredName);
 
             _parsedElementsView.Close();
+        }
+
+        private void InitView( ParseResponseDto parseResponse )
+        {
+            if( parseResponse is null )
+            {
+                _responseText = "Es ist ein Fehler aufgetreten. Bitte parsen Sie Ihre Eingabe erneut.";
+                return;
+            }
+
+            _responseText = parseResponse.Error ?
+                parseResponse.ErrorMessage :
+                "Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.";
+
+            if( parseResponse.StructuredName is null )
+                return;
+
+            parseResponse.StructuredName.Titles.ForEach(title => Titles.Add(new TitleDto { Title = title }));
+            FirstName = parseResponse.StructuredName.FirstName;
+            LastName = parseResponse.StructuredName.LastName;
+            StandardizedSalutation = parseResponse.StructuredName.StandardizedSalutation;
+            Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
+
+            InitRadioButtons();
         }
     }
 }

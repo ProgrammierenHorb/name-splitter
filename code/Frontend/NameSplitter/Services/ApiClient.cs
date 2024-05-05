@@ -34,9 +34,7 @@ namespace NameSplitter.Services
 
                 var response = await _client.PostAsync($"addTitle", content);
                 if( response.IsSuccessStatusCode )
-                {
                     return JsonSerializer.Deserialize<AddTitleResponse>(await response.Content.ReadAsStringAsync());
-                }
 
                 return new AddTitleResponse { ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
             }
@@ -56,9 +54,7 @@ namespace NameSplitter.Services
             {
                 var response = await _client.GetAsync($"getTitles");
                 if( response.IsSuccessStatusCode )
-                {
                     return JsonSerializer.Deserialize<List<string>>(await response.Content.ReadAsStringAsync());
-                }
 
                 return new List<string> { "Keine Titel verfügbar" };
             }
@@ -74,10 +70,7 @@ namespace NameSplitter.Services
             {
                 var response = await _client.GetAsync($"parse/{input}");
                 if( response.IsSuccessStatusCode )
-                {
-                    var test = await response.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<ParseResponseDto>(await response.Content.ReadAsStringAsync());
-                }
 
                 return new ParseResponseDto { Error = true, ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
             }
@@ -102,9 +95,7 @@ namespace NameSplitter.Services
             {
                 var response = await _client.PostAsJsonAsync($"save", structuredName);
                 if( response.IsSuccessStatusCode )
-                {
                     return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
-                }
 
                 return false;
             }
