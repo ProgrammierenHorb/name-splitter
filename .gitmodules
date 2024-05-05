@@ -1,0 +1,3 @@
+[submodule "name-splitter-backend"]
+	path = name-splitter-backend
+	url = https://github.com/ProgrammierenHorb/name-splitter-backend.git
