@@ -8,12 +8,21 @@ using System.Windows;
 
 namespace NameSplitter.ViewModels
 {
+    /// <summary>
+    /// Viewmodel for AddTitle view,
+    /// used to add new titles
+    /// </summary>
     public class AddTitleViewModel : BindableBase
     {
         private IApiClient _apiClient;
         private bool _useRegex = false;
         private AddTitleView _window;
 
+        /// <summary>
+        /// constructor and initailsation of delegate commands
+        /// </summary>
+        /// <param name="window"></param>
+        /// <param name="apiClient"></param>
         public AddTitleViewModel( AddTitleView window, IApiClient apiClient )
         {
             _window = window;
@@ -25,9 +34,20 @@ namespace NameSplitter.ViewModels
 
         public DelegateCommand AddTitleCommand { get; set; }
         public DelegateCommand ButtonCancle { get; set; }
+
+        /// <summary>
+        /// Binding property for new title
+        /// </summary>
         public string Input { get; set; }
+
+        /// <summary>
+        /// Binding property for new regex of the title
+        /// </summary>
         public string InputRegex { get; set; }
 
+        /// <summary>
+        /// Binding property for the checkbox
+        /// </summary>
         public bool UseRegex
         {
             get
@@ -41,6 +61,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the visibility of the regex textbox
+        /// </summary>
         public Visibility Visibility
         {
             get
@@ -50,6 +73,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Command to save the new title in backend using the api
+        /// </summary>
         public async void AddTitleCommandHandlerAsync()
         {
             bool response;
@@ -69,6 +95,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Cancel command to close the window
+        /// </summary>
         public void CancleButtonHandler()
         { _window.Close(); }
     }

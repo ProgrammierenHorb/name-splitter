@@ -12,8 +12,75 @@ using System.Linq;
 
 namespace NameSplitter.ViewModels
 {
-    public class ParsedElementsViewModel: BindableBase
+    /// <summary>
+    /// Viewmodel for ParsedElements view,
+    /// used to display and validate the result of the parser
+    /// </summary>
+    public class ParsedElementsViewModel : BindableBase
     {
+        /// <summary>
+        /// initializes the textbox values
+        /// </summary>
+        /// <param name="parseResponse"></param>
+        private void InitView( ParseResponseDto parseResponse )
+        {
+            if (parseResponse is null)
+            {
+                _responseText = "Es ist ein Fehler aufgetreten. Bitte parsen Sie Ihre Eingabe erneut.";
+                return;
+            }
+
+            if (parseResponse.StructuredName is null)
+                return;
+
+            if (parseResponse.StructuredName.Titles is not null)
+                TitlesAsString = string.Join(", ", parseResponse.StructuredName.Titles);
+
+            FirstName = parseResponse.StructuredName.FirstName;
+            LastName = parseResponse.StructuredName.LastName;
+            StandardizedSalutation = parseResponse.StructuredName.StandardizedSalutation;
+            Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
+
+            InitRadioButtons();
+        }
+
+        /// <summary>
+        /// constructor, which sets up the descriptive label in the view and the delegate commands
+        /// </summary>
+        /// <param name="apiClient"></param>
+        /// <param name="eventAggregator"></param>
+        /// <param name="parsedElementsView"></param>
+        /// <param name="parsedElement"></param>
+        /// <param name="manuallyOpened"></param>
+        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement, bool manuallyOpened )
+        {
+            _apiClient = apiClient;
+            _eventAggregator = eventAggregator;
+            _parsedElementsView = parsedElementsView;
+            _key = parsedElement.StructuredName?.Key ?? Guid.NewGuid();
+            if (manuallyOpened)
+            {
+                _foregroundColor = "Green";
+                _viewsTitle = "Elemente manuell eintragen";
+                _responseText = "Hier können SIe Ihre Angaben manuell eintragen, indem Sie die unten stehende Elemente anpassen.";
+            }
+            else
+            {
+                _foregroundColor = parsedElement.Error ? "Red" : "Green";
+                _viewsTitle = parsedElement.Error ? "Das Parsen ist fehlgeschlagen" : "Das Parsen war erfolgreich";
+                _responseText = parsedElement.Error ?
+                   parsedElement.ErrorMessage :
+                   "Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.";
+            }
+
+            ButtonSave = new DelegateCommand(SaveParsedElementsButtonHandler);
+            ButtonCancle = new DelegateCommand(CancleButtonHandler);
+
+            _eventAggregator.GetEvent<SaveParsedElements>().Subscribe(SaveParsedElementsButtonHandler);
+
+            InitView(parsedElement);
+        }
+
         public DelegateCommand ButtonCancle { get; set; }
         public DelegateCommand ButtonSave { get; set; }
 
@@ -39,28 +106,37 @@ namespace NameSplitter.ViewModels
 
         #region Properties
 
+        /// <summary>
+        /// Binding property for the divers radio button
+        /// </summary>
         public bool DiversIsChecked
         {
             get { return _diversIsChecked; }
             set
             {
                 _diversIsChecked = value;
-                if( _diversIsChecked ) _gender = GenderEnum.DIVERSE;
+                if (_diversIsChecked) _gender = GenderEnum.DIVERSE;
                 RaisePropertyChanged(nameof(DiversIsChecked));
             }
         }
 
+        /// <summary>
+        /// Binding property for the female radio button
+        /// </summary>
         public bool FemaleIsChecked
         {
             get { return _femaleIsChecked; }
             set
             {
                 _femaleIsChecked = value;
-                if( _femaleIsChecked ) _gender = GenderEnum.FEMALE;
+                if (_femaleIsChecked) _gender = GenderEnum.FEMALE;
                 RaisePropertyChanged(nameof(FemaleIsChecked));
             }
         }
 
+        /// <summary>
+        /// Binding property for firstname
+        /// </summary>
         public string FirstName
         {
             get { return _firstName; }
@@ -71,6 +147,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for foregroundcolor of label
+        /// </summary>
         public string ForegroundColor
         {
             get { return _foregroundColor; }
@@ -81,6 +160,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Prpoerty for Gender
+        /// </summary>
         public GenderEnum Gender
         {
             get { return _gender; }
@@ -91,6 +173,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for lastname
+        /// </summary>
         public string LastName
         {
             get { return _lastName; }
@@ -101,17 +186,23 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the male radio button
+        /// </summary>
         public bool MaleIsChecked
         {
             get { return _maleIsChecked; }
             set
             {
                 _maleIsChecked = value;
-                if( _maleIsChecked ) _gender = GenderEnum.MALE;
+                if (_maleIsChecked) _gender = GenderEnum.MALE;
                 RaisePropertyChanged(nameof(MaleIsChecked));
             }
         }
 
+        /// <summary>
+        /// Binding property for responsetext
+        /// </summary>
         public string ResponseText
         {
             get { return _responseText; }
@@ -122,6 +213,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for standardized salutation
+        /// </summary>
         public string StandardizedSalutation
         {
             get { return _standardizedSalutation; }
@@ -132,6 +226,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for title
+        /// </summary>
         public string TitlesAsString
         {
             get { return _titlesAsString; }
@@ -142,6 +239,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for title of the view
+        /// </summary>
         public string ViewsTitle
         {
             get { return _viewsTitle; }
@@ -154,45 +254,22 @@ namespace NameSplitter.ViewModels
 
         #endregion Properties
 
-        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement, bool manuallyOpened )
-        {
-            _apiClient = apiClient;
-            _eventAggregator = eventAggregator;
-            _parsedElementsView = parsedElementsView;
-            _key = parsedElement.StructuredName?.Key ?? Guid.NewGuid();
-            if( manuallyOpened )
-            {
-                _foregroundColor = "Green";
-                _viewsTitle = "Elemente manuell eintragen";
-                _responseText = "Hier können SIe Ihre Angaben manuell eintragen, indem Sie die unten stehende Elemente anpassen.";
-            }
-            else
-            {
-                _foregroundColor = parsedElement.Error ? "Red" : "Green";
-                _viewsTitle = parsedElement.Error ? "Das Parsen ist fehlgeschlagen" : "Das Parsen war erfolgreich";
-                _responseText = parsedElement.Error ?
-                   parsedElement.ErrorMessage :
-                   "Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.";
-            }
-
-            ButtonSave = new DelegateCommand(SaveParsedElementsButtonHandler);
-            ButtonCancle = new DelegateCommand(CancleButtonHandler);
-
-            _eventAggregator.GetEvent<SaveParsedElements>().Subscribe(SaveParsedElementsButtonHandler);
-
-            InitView(parsedElement);
-        }
-
+        /// <summary>
+        /// Cancel command to close the window
+        /// </summary>
         public void CancleButtonHandler() =>
             _parsedElementsView.Close();
 
+        /// <summary>
+        /// initialisation of the radio buttons
+        /// </summary>
         public void InitRadioButtons()
         {
             _diversIsChecked = false;
             _maleIsChecked = false;
             _femaleIsChecked = false;
 
-            switch( Gender )
+            switch (Gender)
             {
                 case GenderEnum.MALE:
                     _maleIsChecked = true;
@@ -208,6 +285,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// saves the parsed elements in the backend using the api
+        /// </summary>
         public async void SaveParsedElementsButtonHandler()
         {
             StructuredName structuredName = new StructuredName
@@ -220,32 +300,10 @@ namespace NameSplitter.ViewModels
                 Key = _key
             };
 
-            if( await _apiClient.SaveParsedElement(structuredName) )
+            if (await _apiClient.SaveParsedElement(structuredName))
                 _eventAggregator.GetEvent<UpdateParsedList>().Publish(structuredName);
 
             _parsedElementsView.Close();
-        }
-
-        private void InitView( ParseResponseDto parseResponse )
-        {
-            if( parseResponse is null )
-            {
-                _responseText = "Es ist ein Fehler aufgetreten. Bitte parsen Sie Ihre Eingabe erneut.";
-                return;
-            }
-
-            if( parseResponse.StructuredName is null )
-                return;
-
-            if( parseResponse.StructuredName.Titles is not null )
-                TitlesAsString = string.Join(", ", parseResponse.StructuredName.Titles);
-
-            FirstName = parseResponse.StructuredName.FirstName;
-            LastName = parseResponse.StructuredName.LastName;
-            StandardizedSalutation = parseResponse.StructuredName.StandardizedSalutation;
-            Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
-
-            InitRadioButtons();
         }
     }
 }

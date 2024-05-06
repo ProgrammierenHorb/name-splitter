@@ -14,6 +14,11 @@ using System.Windows;
 
 namespace NameSplitter.ViewModels
 {
+    /// <summary>
+    /// View model responsible for managing the interaction logic and data binding for the Name Splitter application.
+    /// It handles parsing user input, displaying parsed elements, managing available titles, and updating the UI accordingly.
+    /// </summary>
+
     public class SplitterViewModel : BindableBase
     {
         #region privateVariables
@@ -51,6 +56,9 @@ namespace NameSplitter.ViewModels
 
         #region Properties
 
+        /// <summary>
+        /// Binding property to see if an error occured
+        /// </summary>
         public bool Error
         {
             get { return _error; }
@@ -61,6 +69,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the error message
+        /// </summary>
         public string ErrorMessage
         {
             get { return _errorMessage; }
@@ -71,6 +82,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the firstname
+        /// </summary>
         public string FirstName
         {
             get { return _firstname; }
@@ -81,6 +95,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the gender
+        /// </summary>
         public GenderEnum Gender
         {
             get { return _gender; }
@@ -91,6 +108,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the input
+        /// </summary>
         public string Input
         {
             get { return _input; }
@@ -101,11 +121,17 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Unique key for each entrie
+        /// </summary>
         public Guid Key
         {
             get { return _key; }
         }
 
+        /// <summary>
+        /// Binding property for the lastname
+        /// </summary>
         public string LastName
         {
             get { return _surname; }
@@ -116,6 +142,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the salutation
+        /// </summary>
         public string Salutation
         {
             get { return _salutation; }
@@ -126,6 +155,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// Binding property for the title
+        /// </summary>
         public string Titles
         {
             get { return _titles; }
@@ -138,8 +170,9 @@ namespace NameSplitter.ViewModels
 
         #endregion Properties
 
-        //private ParsedElements _parsedView = new ParsedElements();
-
+        /// <summary>
+        /// opens the dialog to add a new title and refreshes the title list
+        /// </summary>
         private void AddTitleCommandHandler()
         {
             if (!_dialogOpen)
@@ -165,6 +198,9 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// calls the api to parse the input, then opens the dialog to verify the parsed data
+        /// </summary>
         private void ButtonParseHandler()
         {
             if (!_dialogOpen)
@@ -207,9 +243,17 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        /// <summary>
+        /// restes the list
+        /// </summary>
         private void ButtonResetHandler() =>
             EnteredElements.Clear();
 
+        /// <summary>
+        /// converts the gender Enum to string values
+        /// </summary>
+        /// <param name="gender"></param>
+        /// <returns> gender as string</returns>
         private string ConvertGenderEnumToString( GenderEnum gender )
         {
             return gender switch
@@ -221,6 +265,11 @@ namespace NameSplitter.ViewModels
             };
         }
 
+        /// <summary>
+        /// opens the parsedelements view
+        /// </summary>
+        /// <param name="parseResponse"></param>
+        /// <param name="manuallyOpened"></param>
         private void OpenParsedElementsView( ParseResponseDto parseResponse, bool manuallyOpened = false )
         {
             ParsedElements _parsedView = new ParsedElements(_eventAggregator);
@@ -228,6 +277,10 @@ namespace NameSplitter.ViewModels
             _parsedView.ShowDialog();
         }
 
+        /// <summary>
+        /// updates the parsed elements title and replaces the passed element
+        /// </summary>
+        /// <param name="updatedElement"></param>
         private void UpdateParsedElementsList( StructuredName updatedElement )
         {
             bool listContainsElement = EnteredElements.Any(element => element.Key == updatedElement.Key);
@@ -239,6 +292,12 @@ namespace NameSplitter.ViewModels
             EnteredElements.Add(updatedElement);
         }
 
+        /// <summary>
+        /// Contsructor recives IApiClient and IEventAggregator via dependency injection.
+        /// Delegate commands and AvailableTitles list get initialized.
+        /// </summary>
+        /// <param name="apiClient"></param>
+        /// <param name="eventAggregator"></param>
         public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
         {
             _apiClient = apiClient;
