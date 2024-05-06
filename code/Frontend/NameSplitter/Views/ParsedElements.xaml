@@ -4,11 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:NameSplitter="clr-namespace:NameSplitter.Converter"
         xmlns:viewmodels="clr-namespace:NameSplitter.ViewModels"
         d:DataContext="{d:DesignInstance Type=viewmodels:ParsedElementsViewModel}"
         mc:Ignorable="d"
         Title="Rückgabe des Parsers" MinHeight="400" MinWidth="400" Height="400" Width="400">
+
+    <Window.Resources>
+        <NameSplitter:StringToListConverter x:Key="StringToListConverterKey" />
+    </Window.Resources>
     <Grid>
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*" />
             <ColumnDefinition Width="70*" />
@@ -37,18 +43,9 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label Grid.Row="0" Content="Titel:" />
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Height="Auto">
-                <ItemsControl ItemsSource="{Binding Titles}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBox Text="{Binding Title}" Margin="20 0 0 0" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <TextBlock Grid.Row="0" TextWrapping="Wrap" Text="Titel (mehrere Titel sind mit einem Komma und einem darauffolgendem Leerzeichen zu trennen):" />
+            <TextBox Grid.Row="1" Text="{Binding TitlesAsString}" VerticalAlignment="Center"
+                       VerticalContentAlignment="Center" Margin="0 0 0 10" Width="Auto" Height="30" />
         </Grid>
 
         <Grid Grid.Column="1" Grid.Row="2">

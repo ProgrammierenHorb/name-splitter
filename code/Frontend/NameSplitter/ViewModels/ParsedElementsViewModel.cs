@@ -6,7 +6,6 @@ using NameSplitter.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace NameSplitter.ViewModels
@@ -29,6 +28,7 @@ namespace NameSplitter.ViewModels
         private ParsedElements _parsedElementsView;
         private string _responseText;
         private string _standardizedSalutation;
+        private string _titlesAsString;
 
         #endregion private variables
 
@@ -117,7 +117,15 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public ObservableCollection<TitleDto> Titles { get; set; } = new ObservableCollection<TitleDto>();
+        public string TitlesAsString
+        {
+            get { return _titlesAsString; }
+            set
+            {
+                _titlesAsString = value;
+                RaisePropertyChanged(nameof(TitlesAsString));
+            }
+        }
 
         #endregion Properties
 
@@ -162,7 +170,7 @@ namespace NameSplitter.ViewModels
         {
             StructuredName structuredName = new StructuredName
             {
-                Titles = this.Titles.Select(x => x.Title).ToList(),
+                Titles = TitlesAsString.Split(',').Where(element => element is not "" && element is not " ").ToList(),
                 FirstName = this.FirstName,
                 LastName = this.LastName,
                 GenderString = this.Gender.ToString(),
@@ -190,17 +198,13 @@ namespace NameSplitter.ViewModels
             if( parseResponse.StructuredName is null )
                 return;
 
-            parseResponse.StructuredName.Titles.ForEach(title => Titles.Add(new TitleDto { Title = title }));
+            TitlesAsString = string.Join(", ", parseResponse.StructuredName.Titles);
             FirstName = parseResponse.StructuredName.FirstName;
             LastName = parseResponse.StructuredName.LastName;
             StandardizedSalutation = parseResponse.StructuredName.StandardizedSalutation;
             Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
 
             InitRadioButtons();
-        }
-
-        private void SetGender()
-        {
         }
     }
 }
