@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NameSplitter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8ce6db8ea3dad028d62c26a7c85dff7a6b7042d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e2c519995b9576a7eaa0f0b85818a2c07c8175ba")]
 [assembly: System.Reflection.AssemblyProductAttribute("NameSplitter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NameSplitter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

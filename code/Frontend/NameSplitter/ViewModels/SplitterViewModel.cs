@@ -14,7 +14,7 @@ using System.Windows;
 
 namespace NameSplitter.ViewModels
 {
-    public class SplitterViewModel: BindableBase
+    public class SplitterViewModel : BindableBase
     {
         #region privateVariables
 
@@ -140,61 +140,24 @@ namespace NameSplitter.ViewModels
 
         //private ParsedElements _parsedView = new ParsedElements();
 
-        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
-        {
-            _apiClient = apiClient;
-            _eventAggregator = eventAggregator;
-
-            ButtonParse = new DelegateCommand(ButtonParseHandler);
-            ButtonReset = new DelegateCommand(ButtonResetHandler);
-            AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
-            ButtonAddManually = new DelegateCommand(() => OpenParsedElementsView(
-                new ParseResponseDto
-                {
-                    StructuredName = new StructuredName
-                    {
-                        Key = Guid.NewGuid()
-                    }
-                }, true));
-
-            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
-            _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
-            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(( value ) => OpenParsedElementsView(value));
-
-            Task.Run(async () =>
-            {
-                var titles = await _apiClient.GetTitles();
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    AvailableTitles.AddRange(titles);
-                });
-            });
-        }
-
         private void AddTitleCommandHandler()
         {
-            
             if (!_dialogOpen)
             {
                 _dialogOpen = true;
-                Task.Run(() =>
+
+                AddTitleView _view = new AddTitleView();
+                _view.DataContext = new AddTitleViewModel(_view, _apiClient);
+                _view.ShowDialog();
+
+                Task.Run(async () =>
                 {
-                    // without dispatcher it crashes??
+                    //refresh
+                    var titles = await _apiClient.GetTitles();
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        AddTitleView _view = new AddTitleView();
-                        _view.DataContext = new AddTitleViewModel(_view, _apiClient);
-                        _view.ShowDialog();
-                    });
-                    //refresh
-                    Task.Run(async () =>
-                    {
-                        var titles = await _apiClient.GetTitles();
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            AvailableTitles.Clear();
-                            AvailableTitles.AddRange(titles);
-                        });
+                        AvailableTitles.Clear();
+                        AvailableTitles.AddRange(titles);
                     });
 
                     _dialogOpen = false;
@@ -204,7 +167,7 @@ namespace NameSplitter.ViewModels
 
         private void ButtonParseHandler()
         {
-            if( !_dialogOpen )
+            if (!_dialogOpen)
             {
                 _dialogOpen = true;
                 Task.Run(async () =>
@@ -214,9 +177,9 @@ namespace NameSplitter.ViewModels
                     Error = result.Error;
                     ErrorMessage = result.ErrorMessage;
 
-                    if( result.StructuredName is not null )
+                    if (result.StructuredName is not null)
                     {
-                        if( result.StructuredName.Titles != null )
+                        if (result.StructuredName.Titles != null)
                             Titles = string.Join(", ", result.StructuredName.Titles);
 
                         Gender = result.StructuredName.Gender;
@@ -228,7 +191,7 @@ namespace NameSplitter.ViewModels
                     //der dispatcher-thread wird benötigt, um die GUI anpassen zu können
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        if( Error && ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte") )
+                        if (Error && ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte"))
                         {
                             MessageBox.Show("Der Server konnte nicht erreicht werden \nBitte überprüfen Sie, ob das Backend gestartert wurde. " +
                                 "Den Status können Sie unter http://localhost:8080/api/status abfragen.", "Keine Verbindung zum Server möglich", MessageBoxButton.OK,
@@ -270,10 +233,41 @@ namespace NameSplitter.ViewModels
             bool listContainsElement = EnteredElements.Any(element => element.Key == updatedElement.Key);
             updatedElement.GenderString = ConvertGenderEnumToString(updatedElement.Gender);
 
-            if( listContainsElement )
+            if (listContainsElement)
                 EnteredElements.Remove(EnteredElements.Where(element => element.Key == updatedElement.Key).Single());
 
             EnteredElements.Add(updatedElement);
+        }
+
+        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
+        {
+            _apiClient = apiClient;
+            _eventAggregator = eventAggregator;
+
+            ButtonParse = new DelegateCommand(ButtonParseHandler);
+            ButtonReset = new DelegateCommand(ButtonResetHandler);
+            AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
+            ButtonAddManually = new DelegateCommand(() => OpenParsedElementsView(
+                new ParseResponseDto
+                {
+                    StructuredName = new StructuredName
+                    {
+                        Key = Guid.NewGuid()
+                    }
+                }, true));
+
+            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
+            _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
+            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(( value ) => OpenParsedElementsView(value));
+
+            Task.Run(async () =>
+            {
+                var titles = await _apiClient.GetTitles();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    AvailableTitles.AddRange(titles);
+                });
+            });
         }
     }
 }

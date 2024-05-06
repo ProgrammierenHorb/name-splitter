@@ -63,3 +63,5 @@ C:\Repos\name-splitter\code\Frontend\NameSplitter\bin\Debug\net6.0-windows\Mater
 C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\Views\ParsedElements.g.cs
 C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\GeneratedInternalTypeHelper.g.cs
 C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\Views\ParsedElements.baml
+C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\Views\AddTitleView.g.cs
+C:\Repos\name-splitter\code\Frontend\NameSplitter\obj\Debug\net6.0-windows\Views\AddTitleView.baml
