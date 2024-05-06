@@ -10,6 +10,10 @@ namespace NameSplitter.Services
 
         Task<List<string>> GetTitles();
 
-        Task<ParseResponse> Parse( string input );
+        Task<ParseResponseDto> Parse( string input );
+
+        Task<bool> SaveNewTitle( string title );
+
+        Task<bool> SaveParsedElement( StructuredName structuredName );
     }
 }

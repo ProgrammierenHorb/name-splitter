@@ -1,17 +1,20 @@
 ﻿using NameSplitter.DTOs;
+using NameSplitter.Enum;
 using NameSplitter.Events;
 using NameSplitter.Services;
 using NameSplitter.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace NameSplitter.ViewModels
 {
-    public class SplitterViewModel : BindableBase
+    public class SplitterViewModel: BindableBase
     {
         #region privateVariables
 
@@ -21,10 +24,10 @@ namespace NameSplitter.ViewModels
         private string _errorMessage = string.Empty;
         private IEventAggregator _eventAggregator;
         private string _firstname = "";
-        private string _gender = "";
+        private GenderEnum _gender;
         private string _input = "";
+        private Guid _key;
         private string _salutation = "";
-        private string _standardizedSalutation = "";
         private string _surname = "";
         private string _titles = "";
 
@@ -33,16 +36,16 @@ namespace NameSplitter.ViewModels
         #region Buttons
 
         public DelegateCommand AddTitleCommand { get; set; }
+        public DelegateCommand ButtonAddManually { get; set; }
         public DelegateCommand ButtonParse { get; set; }
         public DelegateCommand ButtonReset { get; set; }
-        public DelegateCommand ButtonSave { get; set; }
 
         #endregion Buttons
 
         #region ObservableCollections
 
         public ObservableCollection<string> AvailableTitles { get; set; } = new ObservableCollection<string>();
-        public ObservableCollection<ParseResponse> EnteredElements { get; set; } = new ObservableCollection<ParseResponse>();
+        public ObservableCollection<StructuredName> EnteredElements { get; set; } = new ObservableCollection<StructuredName>();
 
         #endregion ObservableCollections
 
@@ -78,7 +81,7 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public string Gender
+        public GenderEnum Gender
         {
             get { return _gender; }
             set
@@ -96,6 +99,11 @@ namespace NameSplitter.ViewModels
                 _input = value;
                 RaisePropertyChanged(nameof(Input));
             }
+        }
+
+        public Guid Key
+        {
+            get { return _key; }
         }
 
         public string LastName
@@ -118,16 +126,6 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        public string StandardizedSalutation
-        {
-            get { return _standardizedSalutation; }
-            set
-            {
-                _standardizedSalutation = value;
-                RaisePropertyChanged(nameof(StandardizedSalutation));
-            }
-        }
-
         public string Titles
         {
             get { return _titles; }
@@ -142,8 +140,40 @@ namespace NameSplitter.ViewModels
 
         //private ParsedElements _parsedView = new ParsedElements();
 
+        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
+        {
+            _apiClient = apiClient;
+            _eventAggregator = eventAggregator;
+
+            ButtonParse = new DelegateCommand(ButtonParseHandler);
+            ButtonReset = new DelegateCommand(ButtonResetHandler);
+            AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
+            ButtonAddManually = new DelegateCommand(() => OpenParsedElementsView(
+                new ParseResponseDto
+                {
+                    StructuredName = new StructuredName
+                    {
+                        Key = Guid.NewGuid()
+                    }
+                }, true));
+
+            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
+            _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
+            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(( value ) => OpenParsedElementsView(value));
+
+            Task.Run(async () =>
+            {
+                var titles = await _apiClient.GetTitles();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    AvailableTitles.AddRange(titles);
+                });
+            });
+        }
+
         private void AddTitleCommandHandler()
         {
+            
             if (!_dialogOpen)
             {
                 _dialogOpen = true;
@@ -174,26 +204,31 @@ namespace NameSplitter.ViewModels
 
         private void ButtonParseHandler()
         {
-            if (!_dialogOpen)
+            if( !_dialogOpen )
             {
                 _dialogOpen = true;
                 Task.Run(async () =>
                 {
                     var result = await _apiClient.Parse(Input);
-                    if (result.StructuredName != null && result.StructuredName.Titles != null)
-                        Titles = string.Join(", ", result.StructuredName.Titles);
 
-                    //Standardizedsalutation = result.structuredname?.standardizedsalutation;
-                    Gender = result.StructuredName?.Gender;
-                    FirstName = result.StructuredName?.FirstName;
-                    LastName = result.StructuredName?.LastName;
                     Error = result.Error;
                     ErrorMessage = result.ErrorMessage;
 
-                    //der dispatcher-thread wird benötigt, um die collection in der gui anpassen zu können
+                    if( result.StructuredName is not null )
+                    {
+                        if( result.StructuredName.Titles != null )
+                            Titles = string.Join(", ", result.StructuredName.Titles);
+
+                        Gender = result.StructuredName.Gender;
+                        FirstName = result.StructuredName.FirstName;
+                        LastName = result.StructuredName.LastName;
+                        _key = Guid.NewGuid();
+                    }
+
+                    //der dispatcher-thread wird benötigt, um die GUI anpassen zu können
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        if (Error && ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte"))
+                        if( Error && ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte") )
                         {
                             MessageBox.Show("Der Server konnte nicht erreicht werden \nBitte überprüfen Sie, ob das Backend gestartert wurde. " +
                                 "Den Status können Sie unter http://localhost:8080/api/status abfragen.", "Keine Verbindung zum Server möglich", MessageBoxButton.OK,
@@ -201,9 +236,7 @@ namespace NameSplitter.ViewModels
                         }
                         else
                         {
-                            ParsedElements _parsedView = new ParsedElements();
-                            _parsedView.DataContext = new ParsedElementsViewModel(_parsedView, result);
-                            _parsedView.ShowDialog();
+                            OpenParsedElementsView(result);
                         }
                     });
                     _dialogOpen = false;
@@ -211,36 +244,36 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        private void ButtonResetHandler()
-        {
+        private void ButtonResetHandler() =>
             EnteredElements.Clear();
-        }
 
-        private void ButtonSaveHandler()
+        private string ConvertGenderEnumToString( GenderEnum gender )
         {
-            //EnteredElements.Clear();
-        }
-
-        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
-        {
-            _apiClient = apiClient;
-            _eventAggregator = eventAggregator;
-
-            ButtonParse = new DelegateCommand(ButtonParseHandler);
-            ButtonReset = new DelegateCommand(ButtonResetHandler);
-            ButtonSave = new DelegateCommand(ButtonSaveHandler);
-            AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
-
-            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
-
-            Task.Run(async () =>
+            return gender switch
             {
-                var titles = await _apiClient.GetTitles();
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    AvailableTitles.AddRange(titles);
-                });
-            });
+                GenderEnum.MALE => "Männlich",
+                GenderEnum.FEMALE => "Weiblich",
+                GenderEnum.DIVERSE => "Divers",
+                _ => "Unbekannt",
+            };
+        }
+
+        private void OpenParsedElementsView( ParseResponseDto parseResponse, bool manuallyOpened = false )
+        {
+            ParsedElements _parsedView = new ParsedElements(_eventAggregator);
+            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, parseResponse, manuallyOpened);
+            _parsedView.ShowDialog();
+        }
+
+        private void UpdateParsedElementsList( StructuredName updatedElement )
+        {
+            bool listContainsElement = EnteredElements.Any(element => element.Key == updatedElement.Key);
+            updatedElement.GenderString = ConvertGenderEnumToString(updatedElement.Gender);
+
+            if( listContainsElement )
+                EnteredElements.Remove(EnteredElements.Where(element => element.Key == updatedElement.Key).Single());
+
+            EnteredElements.Add(updatedElement);
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using NameSplitter.DTOs;
-using Prism.Commands;
+﻿using NameSplitter.Events;
+using Prism.Events;
 using System.Windows;
+using System.Windows.Input;
 
 namespace NameSplitter.Views
 {
@@ -9,9 +10,18 @@ namespace NameSplitter.Views
     /// </summary>
     public partial class ParsedElements: Window
     {
-        public ParsedElements()
+        private IEventAggregator _eventAggregator;
+
+        public ParsedElements( IEventAggregator eventAggregator )
         {
+            _eventAggregator = eventAggregator;
             InitializeComponent();
+        }
+
+        private void Window_KeyUp( object sender, KeyEventArgs e )
+        {
+            if( e.Key == Key.Enter )
+                _eventAggregator.GetEvent<SaveParsedElements>().Publish();
         }
     }
 }

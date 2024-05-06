@@ -1,4 +1,5 @@
-﻿using NameSplitter.Events;
+﻿using NameSplitter.DTOs;
+using NameSplitter.Events;
 using Prism.Events;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,9 +22,13 @@ namespace NameSplitter.Views
         private void ListView_MouseDoubleClick( object sender, MouseButtonEventArgs e )
         {
             if( EnteredElementsListView.SelectedItem != null )
-            {
-                ;//TODO: Open Dialog
-            }
+                _eventAggregator.GetEvent<OpenParsedElementsView>().Publish(
+                    new ParseResponseDto
+                    {
+                        Error = false,
+                        StructuredName = EnteredElementsListView.SelectedItem as StructuredName
+                    }
+                );
         }
 
         private void Window_KeyUp( object sender, KeyEventArgs e )

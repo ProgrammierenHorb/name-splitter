@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NameSplitter.Services
 {
-    public class ApiClient : IApiClient
+    public class ApiClient: IApiClient
     {
         private readonly HttpClient _client;
 
@@ -28,7 +28,7 @@ namespace NameSplitter.Services
                     regex = regex
                 };
 
-                var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(parameters);
+                var jsonContent = JsonSerializer.Serialize(parameters);
 
                 var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
@@ -40,11 +40,11 @@ namespace NameSplitter.Services
 
                 return false;
             }
-            catch (HttpRequestException ex)
+            catch( HttpRequestException ex )
             {
                 return false;
             }
-            catch (Exception ex)
+            catch( Exception ex )
             {
                 return false;
             }
@@ -55,38 +55,55 @@ namespace NameSplitter.Services
             try
             {
                 var response = await _client.GetAsync($"getTitles");
-                if (response.IsSuccessStatusCode)
-                {
+                if( response.IsSuccessStatusCode )
                     return JsonSerializer.Deserialize<List<string>>(await response.Content.ReadAsStringAsync());
-                }
 
                 return new List<string> { "Keine Titel verfügbar" };
             }
-            catch (Exception)
+            catch( Exception )
             {
                 return new List<string> { "Keine Titel verfügbar" };
             }
         }
 
-        public async Task<ParseResponse> Parse( string input )
+        public async Task<ParseResponseDto> Parse( string input )
         {
             try
             {
                 var response = await _client.GetAsync($"parse/{input}");
-                if (response.IsSuccessStatusCode)
-                {
-                    return JsonSerializer.Deserialize<ParseResponse>(await response.Content.ReadAsStringAsync());
-                }
+                if( response.IsSuccessStatusCode )
+                    return JsonSerializer.Deserialize<ParseResponseDto>(await response.Content.ReadAsStringAsync());
 
-                return new ParseResponse { Error = true, ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
+                return new ParseResponseDto { Error = true, ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
             }
-            catch (HttpRequestException ex)
+            catch( HttpRequestException ex )
             {
-                return new ParseResponse { Error = true, ErrorMessage = ex.Message };
+                return new ParseResponseDto { Error = true, ErrorMessage = ex.Message };
             }
-            catch (Exception ex)
+            catch( Exception ex )
             {
-                return new ParseResponse { Error = true, ErrorMessage = "Beim Parsen trat ein Fehler auf:" + ex.Message };
+                return new ParseResponseDto { Error = true, ErrorMessage = "Beim Parsen trat ein Fehler auf:" + ex.Message };
+            }
+        }
+
+        public async Task<bool> SaveNewTitle( string title )
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> SaveParsedElement( StructuredName structuredName )
+        {
+            try
+            {
+                var response = await _client.PostAsJsonAsync($"save", structuredName);
+                if( response.IsSuccessStatusCode )
+                    return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
+
+                return false;
+            }
+            catch( Exception )
+            {
+                return false;
             }
         }
     }
