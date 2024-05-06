@@ -147,26 +147,27 @@ namespace NameSplitter.ViewModels
             if (!_dialogOpen)
             {
                 _dialogOpen = true;
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
                     // without dispatcher it crashes??
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         AddTitleView _view = new AddTitleView();
-                        _view.DataContext = new AddTitleViewModel(_view,_apiClient);
+                        _view.DataContext = new AddTitleViewModel(_view, _apiClient);
                         _view.ShowDialog();
                     });
-                    _dialogOpen = false;
-                });
-
-                //refresh
-                Task.Run(async () =>
-                {
-                    var titles = await _apiClient.GetTitles();
-                    Application.Current.Dispatcher.Invoke(() =>
+                    //refresh
+                    Task.Run(async () =>
                     {
-                        AvailableTitles.AddRange(titles);
+                        var titles = await _apiClient.GetTitles();
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            AvailableTitles.Clear();
+                            AvailableTitles.AddRange(titles);
+                        });
                     });
+
+                    _dialogOpen = false;
                 });
             }
         }

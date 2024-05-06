@@ -18,14 +18,14 @@ namespace NameSplitter.Services
             _client.BaseAddress = new Uri(@"http://localhost:8080/api/");
         }
 
-        public async Task<AddTitleResponse> AddTitle( string titleToAdd, bool useRegex )
+        public async Task<bool> AddTitle( string name, string regex )
         {
             try
             {
                 var parameters = new
                 {
-                    titleToAdd,
-                    useRegex
+                    name = name,
+                    regex = regex
                 };
 
                 var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(parameters);
@@ -35,18 +35,18 @@ namespace NameSplitter.Services
                 var response = await _client.PostAsync($"addTitle", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    return JsonSerializer.Deserialize<AddTitleResponse>(await response.Content.ReadAsStringAsync());
+                    return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
                 }
 
-                return new AddTitleResponse { ErrorMessage = "Der eingegebene String konnte nicht geparsed werden!" };
+                return false;
             }
             catch (HttpRequestException ex)
             {
-                return new AddTitleResponse { ErrorMessage = ex.Message };
+                return false;
             }
             catch (Exception ex)
             {
-                return new AddTitleResponse { ErrorMessage = ex.Message };
+                return false;
             }
         }
 

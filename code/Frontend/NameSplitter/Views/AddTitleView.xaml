@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NameSplitter.Views"
         mc:Ignorable="d"
-        Title="Titel hinzufügen" MinHeight="175" MinWidth="400" Height="175" Width="400">
+        Title="Titel hinzufügen" MinHeight="225" MinWidth="400" Height="225" Width="400">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />
@@ -15,9 +15,9 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="4*" />
-            <RowDefinition Height="20*" />
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="30*" />
             <RowDefinition Height="10*" />
+            <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Column="1" Grid.Row="1">
@@ -25,14 +25,18 @@
             <TextBox VerticalContentAlignment="Center" Width="Auto" Height="30" VerticalAlignment="Center" Text="{Binding Input}" />
             <DockPanel Margin="0,10,0,0">
                 <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding UseRegex}" ></CheckBox>
-                <TextBlock Text="Regex aktivieren" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" />
+                <TextBlock Text="RegEx verwenden" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" />
                 <!-- default titel wenn regex genutzt -->
+                <StackPanel Margin="10,0,0,0" Visibility="{Binding Visibility, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBlock Width="Auto" VerticalAlignment="Center" Text="RegEx:" />
+                    <TextBox VerticalContentAlignment="Center" Width="Auto" Height="30" VerticalAlignment="Center" Text="{Binding InputRegex}" />
+                </StackPanel>
             </DockPanel>
         </StackPanel>
 
-        <Button  Grid.Column="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Center"
+        <Button  Grid.Column="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Center"
         Command="{Binding ButtonCancle}" Background="LightGray" FontSize="12" Grid.ColumnSpan="2" />
-        <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="3" Width="100" Height="30" Content="Speichern" VerticalAlignment="Center"
+        <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="2" Width="100" Height="30" Content="Speichern" VerticalAlignment="Center"
         HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" Background="LightGray" FontSize="12" />
     </Grid>
 </Window>

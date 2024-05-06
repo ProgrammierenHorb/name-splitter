@@ -6,7 +6,7 @@ namespace NameSplitter.Services
 {
     public interface IApiClient
     {
-        Task<AddTitleResponse> AddTitle( string titleToAdd, bool useRegex );
+        Task<bool> AddTitle( string titleToAdd, string regex );
 
         Task<List<string>> GetTitles();
 
