@@ -9,6 +9,9 @@ namespace NameSplitter.Events
     public class ParseEvent: PubSubEvent
     { }
 
+    public class SaveParsedElements: PubSubEvent
+    { }
+
     public class UpdateParsedList: PubSubEvent<StructuredName>
     { }
 }

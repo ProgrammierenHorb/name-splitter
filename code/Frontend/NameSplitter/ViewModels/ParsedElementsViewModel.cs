@@ -6,6 +6,8 @@ using NameSplitter.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NameSplitter.ViewModels
@@ -18,17 +20,20 @@ namespace NameSplitter.ViewModels
         #region private variables
 
         private IApiClient _apiClient;
-        private bool _diversIsChecked = false;
+        private bool _diversIsChecked = true;
         private IEventAggregator _eventAggregator;
         private bool _femaleIsChecked = false;
         private string _firstName;
-        private GenderEnum _gender;
+        private string _foregroundColor = "Red";
+        private GenderEnum _gender = GenderEnum.DIVERSE;
+        private Guid _key;
         private string _lastName;
         private bool _maleIsChecked = false;
         private ParsedElements _parsedElementsView;
         private string _responseText;
         private string _standardizedSalutation;
         private string _titlesAsString;
+        private string _viewsTitle = "Das Parsen ist fehlgeschlagen";
 
         #endregion private variables
 
@@ -63,6 +68,16 @@ namespace NameSplitter.ViewModels
             {
                 _firstName = value;
                 RaisePropertyChanged(nameof(FirstName));
+            }
+        }
+
+        public string ForegroundColor
+        {
+            get { return _foregroundColor; }
+            set
+            {
+                _foregroundColor = value;
+                RaisePropertyChanged(nameof(ForegroundColor));
             }
         }
 
@@ -127,16 +142,43 @@ namespace NameSplitter.ViewModels
             }
         }
 
+        public string ViewsTitle
+        {
+            get { return _viewsTitle; }
+            set
+            {
+                _viewsTitle = value;
+                RaisePropertyChanged(nameof(ViewsTitle));
+            }
+        }
+
         #endregion Properties
 
-        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement )
+        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement, bool manuallyOpened )
         {
             _apiClient = apiClient;
             _eventAggregator = eventAggregator;
             _parsedElementsView = parsedElementsView;
+            _key = parsedElement.StructuredName?.Key ?? Guid.NewGuid();
+            if( manuallyOpened )
+            {
+                _foregroundColor = "Green";
+                _viewsTitle = "Elemente manuell eintragen";
+                _responseText = "Hier können SIe Ihre Angaben manuell eintragen, indem Sie die unten stehende Elemente anpassen.";
+            }
+            else
+            {
+                _foregroundColor = parsedElement.Error ? "Red" : "Green";
+                _viewsTitle = parsedElement.Error ? "Das Parsen ist fehlgeschlagen" : "Das Parsen war erfolgreich";
+                _responseText = parsedElement.Error ?
+                   parsedElement.ErrorMessage :
+                   "Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.";
+            }
 
             ButtonSave = new DelegateCommand(SaveParsedElementsButtonHandler);
             ButtonCancle = new DelegateCommand(CancleButtonHandler);
+
+            _eventAggregator.GetEvent<SaveParsedElements>().Subscribe(SaveParsedElementsButtonHandler);
 
             InitView(parsedElement);
         }
@@ -170,11 +212,12 @@ namespace NameSplitter.ViewModels
         {
             StructuredName structuredName = new StructuredName
             {
-                Titles = TitlesAsString.Split(',').Where(element => element is not "" && element is not " ").ToList(),
-                FirstName = this.FirstName,
-                LastName = this.LastName,
-                GenderString = this.Gender.ToString(),
-                StandardizedSalutation = this.StandardizedSalutation,
+                Titles = TitlesAsString?.Split(',').Where(element => element is not "" && element is not " ").ToList() ?? new List<string>(),
+                FirstName = this.FirstName ?? "Unbekannt",
+                LastName = this.LastName ?? "Unbekannt",
+                GenderString = this.Gender.ToString() ?? GenderEnum.DIVERSE.ToString(),
+                StandardizedSalutation = this.StandardizedSalutation ?? "Unbekannt",
+                Key = _key
             };
 
             if( await _apiClient.SaveParsedElement(structuredName) )
@@ -191,14 +234,12 @@ namespace NameSplitter.ViewModels
                 return;
             }
 
-            _responseText = parseResponse.Error ?
-                parseResponse.ErrorMessage :
-                "Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.";
-
             if( parseResponse.StructuredName is null )
                 return;
 
-            TitlesAsString = string.Join(", ", parseResponse.StructuredName.Titles);
+            if( parseResponse.StructuredName.Titles is not null )
+                TitlesAsString = string.Join(", ", parseResponse.StructuredName.Titles);
+
             FirstName = parseResponse.StructuredName.FirstName;
             LastName = parseResponse.StructuredName.LastName;
             StandardizedSalutation = parseResponse.StructuredName.StandardizedSalutation;

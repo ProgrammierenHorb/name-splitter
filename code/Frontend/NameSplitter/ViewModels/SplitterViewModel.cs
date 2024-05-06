@@ -36,6 +36,7 @@ namespace NameSplitter.ViewModels
         #region Buttons
 
         public DelegateCommand AddTitleCommand { get; set; }
+        public DelegateCommand ButtonAddManually { get; set; }
         public DelegateCommand ButtonParse { get; set; }
         public DelegateCommand ButtonReset { get; set; }
 
@@ -147,10 +148,18 @@ namespace NameSplitter.ViewModels
             ButtonParse = new DelegateCommand(ButtonParseHandler);
             ButtonReset = new DelegateCommand(ButtonResetHandler);
             AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
+            ButtonAddManually = new DelegateCommand(() => OpenParsedElementsView(
+                new ParseResponseDto
+                {
+                    StructuredName = new StructuredName
+                    {
+                        Key = Guid.NewGuid()
+                    }
+                }, true));
 
             _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
             _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
-            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(OpenParsedElementsView);
+            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(( value ) => OpenParsedElementsView(value));
 
             Task.Run(async () =>
             {
@@ -228,10 +237,8 @@ namespace NameSplitter.ViewModels
             }
         }
 
-        private void ButtonResetHandler()
-        {
+        private void ButtonResetHandler() =>
             EnteredElements.Clear();
-        }
 
         private string ConvertGenderEnumToString( GenderEnum gender )
         {
@@ -244,10 +251,10 @@ namespace NameSplitter.ViewModels
             };
         }
 
-        private void OpenParsedElementsView( ParseResponseDto parseResponse )
+        private void OpenParsedElementsView( ParseResponseDto parseResponse, bool manuallyOpened = false )
         {
-            ParsedElements _parsedView = new ParsedElements();
-            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, parseResponse);
+            ParsedElements _parsedView = new ParsedElements(_eventAggregator);
+            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, parseResponse, manuallyOpened);
             _parsedView.ShowDialog();
         }
 
