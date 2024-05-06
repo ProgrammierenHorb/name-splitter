@@ -24,8 +24,8 @@ namespace NameSplitter.Services
             {
                 var parameters = new
                 {
-                    name = name,
-                    regex = regex
+                    name,
+                    regex
                 };
 
                 var jsonContent = JsonSerializer.Serialize(parameters);
@@ -33,18 +33,14 @@ namespace NameSplitter.Services
                 var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
                 var response = await _client.PostAsync($"addTitle", content);
-                if (response.IsSuccessStatusCode)
+                if( response.IsSuccessStatusCode )
                 {
                     return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
                 }
 
                 return false;
             }
-            catch( HttpRequestException ex )
-            {
-                return false;
-            }
-            catch( Exception ex )
+            catch
             {
                 return false;
             }
@@ -84,11 +80,6 @@ namespace NameSplitter.Services
             {
                 return new ParseResponseDto { Error = true, ErrorMessage = "Beim Parsen trat ein Fehler auf:" + ex.Message };
             }
-        }
-
-        public async Task<bool> SaveNewTitle( string title )
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> SaveParsedElement( StructuredName structuredName )

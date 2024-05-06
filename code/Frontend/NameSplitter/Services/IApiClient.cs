@@ -12,8 +12,6 @@ namespace NameSplitter.Services
 
         Task<ParseResponseDto> Parse( string input );
 
-        Task<bool> SaveNewTitle( string title );
-
         Task<bool> SaveParsedElement( StructuredName structuredName );
     }
 }
