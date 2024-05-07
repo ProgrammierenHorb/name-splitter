@@ -82,19 +82,23 @@ namespace NameSplitter.Services
             }
         }
 
-        public async Task<bool> SaveParsedElement( StructuredName structuredName )
+        public async Task<StructuredName> SaveParsedElement( StructuredName structuredName )
         {
             try
             {
                 var response = await _client.PostAsJsonAsync($"save", structuredName);
                 if( response.IsSuccessStatusCode )
-                    return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
+                {
+                    var structuredNameResponse = JsonSerializer.Deserialize<StructuredName>(await response.Content.ReadAsStringAsync());
+                    structuredNameResponse.Key = Guid.NewGuid();
+                    return structuredNameResponse;
+                }
 
-                return false;
+                return null;
             }
             catch( Exception )
             {
-                return false;
+                return null;
             }
         }
     }

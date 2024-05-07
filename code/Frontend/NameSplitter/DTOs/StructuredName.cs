@@ -1,10 +1,7 @@
 ﻿using NameSplitter.Enum;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace NameSplitter.DTOs
 {
@@ -13,12 +10,8 @@ namespace NameSplitter.DTOs
     /// </summary>
     public class StructuredName
     {
-        private GenderEnum _genderEnum;
-
-        private string _genderString;
-
         [JsonPropertyName("firstName")]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [JsonIgnore]
         public GenderEnum Gender => _genderEnum;
@@ -31,7 +24,7 @@ namespace NameSplitter.DTOs
             {
                 _genderString = value;
 
-                switch (_genderString)
+                switch( _genderString )
                 {
                     case "MALE":
                         _genderEnum = GenderEnum.MALE;
@@ -59,5 +52,9 @@ namespace NameSplitter.DTOs
 
         [JsonPropertyName("titles")]
         public List<string> Titles { get; set; }
+
+        private GenderEnum _genderEnum;
+
+        private string _genderString;
     }
 }

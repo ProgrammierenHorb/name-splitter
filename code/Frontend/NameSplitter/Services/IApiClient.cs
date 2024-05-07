@@ -35,6 +35,6 @@ namespace NameSplitter.Services
         /// </summary>
         /// <param name="structuredName"></param>
         /// <returns> True if successful</returns>
-        Task<bool> SaveParsedElement( StructuredName structuredName );
+        Task<StructuredName> SaveParsedElement( StructuredName structuredName );
     }
 }
