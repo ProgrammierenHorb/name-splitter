@@ -35,8 +35,8 @@
         </StackPanel>
 
         <Button  Grid.Column="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Center"
-        Command="{Binding ButtonCancle}" Background="LightGray" FontSize="12" Grid.ColumnSpan="2" />
+        Command="{Binding ButtonCancle}"  BorderBrush="OrangeRed" Background="OrangeRed" FontSize="12" Grid.ColumnSpan="2" />
         <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="2" Width="100" Height="30" Content="Speichern" VerticalAlignment="Center"
-        HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" Background="LightGray" FontSize="12" />
+        HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" BorderBrush="LightGreen" Background="LightGreen" FontSize="12" />
     </Grid>
 </Window>

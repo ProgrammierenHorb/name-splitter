@@ -9,23 +9,16 @@ namespace NameSplitter.Views
     /// <summary>
     /// Interaction logic for SplitterView.xaml
     /// </summary>
-    public partial class SplitterView: UserControl
+    public partial class SplitterView : UserControl
     {
         private IEventAggregator _eventAggregator;
 
-        public SplitterView( IEventAggregator eventAggregator )
-        {
-            _eventAggregator = eventAggregator;
-            InitializeComponent();
-        }
-
         private void ListView_MouseDoubleClick( object sender, MouseButtonEventArgs e )
         {
-            if( EnteredElementsListView.SelectedItem != null )
+            if (EnteredElementsListView.SelectedItem != null)
                 _eventAggregator.GetEvent<OpenParsedElementsView>().Publish(
                     new ParseResponseDto
                     {
-                        Error = false,
                         StructuredName = EnteredElementsListView.SelectedItem as StructuredName
                     }
                 );
@@ -33,10 +26,16 @@ namespace NameSplitter.Views
 
         private void Window_KeyUp( object sender, KeyEventArgs e )
         {
-            if( e.Key == Key.Enter )
+            if (e.Key == Key.Enter)
             {
                 _eventAggregator.GetEvent<ParseEvent>().Publish();
             }
+        }
+
+        public SplitterView( IEventAggregator eventAggregator )
+        {
+            _eventAggregator = eventAggregator;
+            InitializeComponent();
         }
     }
 }

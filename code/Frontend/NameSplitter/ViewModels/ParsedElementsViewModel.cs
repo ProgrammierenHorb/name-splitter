@@ -1,4 +1,5 @@
-﻿using NameSplitter.DTOs;
+﻿using DryIoc;
+using NameSplitter.DTOs;
 using NameSplitter.Enum;
 using NameSplitter.Events;
 using NameSplitter.Services;
@@ -8,8 +9,12 @@ using Prism.Events;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 
 namespace NameSplitter.ViewModels
 {
@@ -17,11 +22,37 @@ namespace NameSplitter.ViewModels
     /// Viewmodel for ParsedElements view,
     /// used to display and validate the result of the parser
     /// </summary>
-    public class ParsedElementsViewModel: BindableBase
+    public class ParsedElementsViewModel : BindableBase
     {
-        public DelegateCommand ButtonCancle { get; set; }
+        /// <summary>
+        /// initializes the textbox values
+        /// </summary>
+        /// <param name="parseResponse"></param>
+        private void InitView( ParseResponseDto parseResponse )
+        {
+            if (parseResponse is null)
+            {
+                ResponseText.Add(new TextWithColor("Es ist ein Fehler aufgetreten. Bitte parsen Sie Ihre Eingabe erneut.", new SolidColorBrush(Colors.Red)));
+                return;
+            }
 
-        public DelegateCommand ButtonSave { get; set; }
+            if (parseResponse.StructuredName is null)
+                return;
+
+            if (parseResponse.StructuredName.Titles is not null)
+            {
+                foreach (var title in parseResponse.StructuredName.Titles)
+                {
+                    Titles.Add(new Title(title));
+                }
+            }
+
+            FirstName = parseResponse.StructuredName.FirstName;
+            LastName = parseResponse.StructuredName.LastName;
+            Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
+
+            InitRadioButtons();
+        }
 
         /// <summary>
         /// constructor, which sets up the descriptive label in the view and the delegate commands
@@ -31,37 +62,60 @@ namespace NameSplitter.ViewModels
         /// <param name="parsedElementsView"></param>
         /// <param name="parsedElement"></param>
         /// <param name="manuallyOpened"></param>
-        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement, bool manuallyOpened )
+        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement, bool manuallyOpened, string input )
         {
             _apiClient = apiClient;
             _eventAggregator = eventAggregator;
             _parsedElementsView = parsedElementsView;
             _key = parsedElement.StructuredName?.Key ?? Guid.NewGuid();
-            if( manuallyOpened )
+            Input = input;
+            if (manuallyOpened)
             {
                 _foregroundColor = "Green";
                 _viewsTitle = "Elemente manuell eintragen";
-                _responseText = "Hier können SIe Ihre Angaben manuell eintragen, indem Sie die unten stehende Elemente anpassen.";
+                ResponseText.Add(new TextWithColor("Hier können Sie Ihre Angaben manuell eintragen, indem Sie die unten stehende Elemente anpassen.", new SolidColorBrush(Colors.Green)));
             }
             else
             {
-                _foregroundColor = parsedElement.Error ? "Red" : "Green";
-                _viewsTitle = parsedElement.Error ? "Das Parsen ist fehlgeschlagen" : "Das Parsen war erfolgreich";
-                _responseText = parsedElement.Error ?
-                   parsedElement.ErrorMessage :
-                   "Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.";
+                if (parsedElement.ErrorMessages != null && parsedElement.ErrorMessages.Any())
+                {
+                    _foregroundColor = "Red";
+                    _viewsTitle = "Das Parsen ist fehlgeschlagen";
+                }
+                else
+                {
+                    _foregroundColor = "Green";
+                    _viewsTitle = "Das Parsen war erfolgreich";
+                }
+                FormatResponseText(parsedElementsView, parsedElement);
             }
 
             ButtonSave = new DelegateCommand(SaveParsedElementsButtonHandler);
             ButtonCancle = new DelegateCommand(CancleButtonHandler);
+            AddNewTitleCommand = new DelegateCommand(AddNewTitleCommandHandler);
 
             _eventAggregator.GetEvent<SaveParsedElements>().Subscribe(SaveParsedElementsButtonHandler);
 
-            Task.Run(async () =>
+            Task.Run(() =>
             {
-                //AvailableTitless = await _apiClient.GetTitles();
-                InitView(parsedElement);
-            });
+                AllAvailableTitles = new ObservableCollection<string>(_apiClient.GetTitles().Result)
+                {
+                    "-Keine Auswahl-" // add placeholder
+                };
+            }).Wait();
+
+            InitView(parsedElement);
+        }
+
+        public DelegateCommand AddNewTitleCommand { get; set; }
+
+        public DelegateCommand ButtonCancle { get; set; }
+
+        public DelegateCommand ButtonSave { get; set; }
+
+        public void AddNewTitleCommandHandler()
+        {
+            Titles.Add(new Title("-Keine Auswahl-"));
         }
 
         /// <summary>
@@ -69,6 +123,55 @@ namespace NameSplitter.ViewModels
         /// </summary>
         public void CancleButtonHandler() =>
             _parsedElementsView.Close();
+
+        public void FormatResponseText( ParsedElements parsedElementsView, ParseResponseDto parsedElement )
+        {
+            List<TextWithColor> inputTextWithColor = new();
+            if (parsedElement.ErrorMessages == null || !parsedElement.ErrorMessages.Any())
+            {
+                inputTextWithColor.Add(new TextWithColor(Input, new SolidColorBrush(Colors.Black)));
+                ResponseText.Add(new TextWithColor("Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.", new SolidColorBrush(Colors.Green)));
+            }
+            else
+            {
+                var errors = parsedElement.ErrorMessages.OrderBy(e => e.StartPos).ToList();
+                string inputStr = Input;
+                int currentPos = 0;
+                for (int i = 0; i < errors.Count; i++)
+                {
+                    var error = errors[i];
+                    if (currentPos < error.StartPos)
+                    {
+                        // add a black tuple up to error.StartPos
+                        string str = inputStr.Substring(currentPos, error.StartPos - currentPos);
+                        inputTextWithColor.Add(new TextWithColor(str, new SolidColorBrush(Colors.Black)));
+                        currentPos = error.StartPos;
+                    }
+
+                    // now add colored tuple up to error.EndPos
+                    string errorStr = inputStr.Substring(currentPos, error.EndPos - currentPos + 1);
+                    var color = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GetRandomHexColor()));
+                    inputTextWithColor.Add(new TextWithColor(errorStr, color));
+                    ResponseText.Add(new TextWithColor(error.Message, color));
+
+                    currentPos = error.EndPos + 1;
+                }
+
+                // if there's any string left after last error, add it in black
+                if (currentPos < inputStr.Length)
+                {
+                    string endStr = inputStr.Substring(currentPos);
+                    inputTextWithColor.Add(new TextWithColor(endStr, new SolidColorBrush(Colors.Black)));
+                }
+            }
+            parsedElementsView.WriteInTextbox(inputTextWithColor);
+        }
+
+        public string GetRandomHexColor()
+        {
+            Random random = new Random();
+            return String.Format("#{0:X6}", random.Next(0x1000000)); // generates a random color
+        }
 
         /// <summary>
         /// initialisation of the radio buttons
@@ -79,7 +182,7 @@ namespace NameSplitter.ViewModels
             _maleIsChecked = false;
             _femaleIsChecked = false;
 
-            switch( Gender )
+            switch (Gender)
             {
                 case GenderEnum.MALE:
                     _maleIsChecked = true;
@@ -102,7 +205,7 @@ namespace NameSplitter.ViewModels
         {
             StructuredName structuredName = new StructuredName
             {
-                Titles = TitlesAsString?.Split(',').Where(element => element is not "" && element is not " ").ToList() ?? new List<string>(),
+                Titles = Titles.Where(x => x.Value != "-Keine Auswahl-").Select(x => x.Value).ToList() ?? new List<string>(),
                 FirstName = this.FirstName ?? null,
                 LastName = this.LastName ?? "Unbekannt",
                 GenderString = this.Gender.ToString() ?? GenderEnum.DIVERSE.ToString(),
@@ -110,39 +213,15 @@ namespace NameSplitter.ViewModels
             };
 
             var adjustedStructuredName = await _apiClient.SaveParsedElement(structuredName);
-            if( adjustedStructuredName is not null )
+            if (adjustedStructuredName is not null)
                 _eventAggregator.GetEvent<UpdateParsedList>().Publish(adjustedStructuredName);
 
             _parsedElementsView.Close();
         }
 
-        /// <summary>
-        /// initializes the textbox values
-        /// </summary>
-        /// <param name="parseResponse"></param>
-        private void InitView( ParseResponseDto parseResponse )
-        {
-            if( parseResponse is null )
-            {
-                _responseText = "Es ist ein Fehler aufgetreten. Bitte parsen Sie Ihre Eingabe erneut.";
-                return;
-            }
-
-            if( parseResponse.StructuredName is null )
-                return;
-
-            if( parseResponse.StructuredName.Titles is not null )
-                TitlesAsString = string.Join(", ", parseResponse.StructuredName.Titles);
-
-            FirstName = parseResponse.StructuredName.FirstName;
-            LastName = parseResponse.StructuredName.LastName;
-            Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
-
-            InitRadioButtons();
-        }
-
         #region private variables
 
+        private ObservableCollection<string> _allAvailableTitles;
         private IApiClient _apiClient;
         private bool _diversIsChecked = true;
         private IEventAggregator _eventAggregator;
@@ -150,17 +229,34 @@ namespace NameSplitter.ViewModels
         private string _firstName;
         private string _foregroundColor = "Red";
         private GenderEnum _gender = GenderEnum.DIVERSE;
+        private string _input;
         private Guid _key;
         private string _lastName;
         private bool _maleIsChecked = false;
         private ParsedElements _parsedElementsView;
-        private string _responseText;
-        private string _titlesAsString;
+        private List<TextWithColor> _responseText = new();
+        private ObservableCollection<Title> _titles = new ObservableCollection<Title>();
         private string _viewsTitle = "Das Parsen ist fehlgeschlagen";
 
         #endregion private variables
 
         #region Properties
+
+        /// <summary>
+        /// ItemSource for all available titles
+        /// </summary>
+        public ObservableCollection<string> AllAvailableTitles
+        {
+            get
+            {
+                return _allAvailableTitles;
+            }
+            set
+            {
+                _allAvailableTitles = value;
+                RaisePropertyChanged(nameof(AllAvailableTitles));
+            }
+        }
 
         /// <summary>
         /// Binding property for the divers radio button
@@ -171,7 +267,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _diversIsChecked = value;
-                if( _diversIsChecked ) _gender = GenderEnum.DIVERSE;
+                if (_diversIsChecked) _gender = GenderEnum.DIVERSE;
                 RaisePropertyChanged(nameof(DiversIsChecked));
             }
         }
@@ -185,7 +281,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _femaleIsChecked = value;
-                if( _femaleIsChecked ) _gender = GenderEnum.FEMALE;
+                if (_femaleIsChecked) _gender = GenderEnum.FEMALE;
                 RaisePropertyChanged(nameof(FemaleIsChecked));
             }
         }
@@ -230,6 +326,19 @@ namespace NameSplitter.ViewModels
         }
 
         /// <summary>
+        /// Property for Input
+        /// </summary>
+        public string Input
+        {
+            get { return _input; }
+            set
+            {
+                _input = value;
+                RaisePropertyChanged(nameof(Input));
+            }
+        }
+
+        /// <summary>
         /// Binding property for lastname
         /// </summary>
         public string LastName
@@ -251,7 +360,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _maleIsChecked = value;
-                if( _maleIsChecked ) _gender = GenderEnum.MALE;
+                if (_maleIsChecked) _gender = GenderEnum.MALE;
                 RaisePropertyChanged(nameof(MaleIsChecked));
             }
         }
@@ -259,7 +368,7 @@ namespace NameSplitter.ViewModels
         /// <summary>
         /// Binding property for responsetext
         /// </summary>
-        public string ResponseText
+        public List<TextWithColor> ResponseText
         {
             get { return _responseText; }
             set
@@ -270,15 +379,18 @@ namespace NameSplitter.ViewModels
         }
 
         /// <summary>
-        /// Binding property for title
+        /// Binding property for Titles
         /// </summary>
-        public string TitlesAsString
+        public ObservableCollection<Title> Titles
         {
-            get { return _titlesAsString; }
+            get
+            {
+                return _titles;
+            }
             set
             {
-                _titlesAsString = value;
-                RaisePropertyChanged(nameof(TitlesAsString));
+                _titles = value;
+                RaisePropertyChanged(nameof(Titles));
             }
         }
 

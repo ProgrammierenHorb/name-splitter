@@ -25,7 +25,6 @@ namespace NameSplitter.ViewModels
 
         private IApiClient _apiClient;
         private bool _dialogOpen = false;
-        private bool _error = false;
         private string _errorMessage = string.Empty;
         private IEventAggregator _eventAggregator;
         private string _firstname = "";
@@ -55,19 +54,6 @@ namespace NameSplitter.ViewModels
         #endregion ObservableCollections
 
         #region Properties
-
-        /// <summary>
-        /// Binding property to see if an error occured
-        /// </summary>
-        public bool Error
-        {
-            get { return _error; }
-            set
-            {
-                _error = value;
-                RaisePropertyChanged(nameof(Error));
-            }
-        }
 
         /// <summary>
         /// Binding property for the error message
@@ -210,8 +196,7 @@ namespace NameSplitter.ViewModels
                 {
                     var result = await _apiClient.Parse(Input);
 
-                    Error = result.Error;
-                    ErrorMessage = result.ErrorMessage;
+                    ErrorMessage = string.Join(", ", result.ErrorMessages.Select(x => x.Message));
 
                     if (result.StructuredName is not null)
                     {
@@ -227,7 +212,7 @@ namespace NameSplitter.ViewModels
                     //der dispatcher-thread wird benötigt, um die GUI anpassen zu können
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        if (Error && ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte"))
+                        if (ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte"))
                         {
                             MessageBox.Show("Der Server konnte nicht erreicht werden \nBitte überprüfen Sie, ob das Backend gestartert wurde. " +
                                 "Den Status können Sie unter http://localhost:8080/api/status abfragen.", "Keine Verbindung zum Server möglich", MessageBoxButton.OK,
@@ -273,7 +258,7 @@ namespace NameSplitter.ViewModels
         private void OpenParsedElementsView( ParseResponseDto parseResponse, bool manuallyOpened = false )
         {
             ParsedElements _parsedView = new ParsedElements(_eventAggregator);
-            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, parseResponse, manuallyOpened);
+            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, parseResponse, manuallyOpened, Input);
             _parsedView.ShowDialog();
         }
 
