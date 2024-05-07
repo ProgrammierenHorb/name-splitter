@@ -30,6 +30,8 @@ namespace NameSplitter.Services
         /// <returns>ParseResponseDto</returns>
         Task<ParseResponseDto> Parse( string input );
 
+        Task<bool> RemoveTitle( string title );
+
         /// <summary>
         /// Saves a parsed entity
         /// </summary>

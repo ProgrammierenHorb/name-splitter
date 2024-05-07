@@ -2,7 +2,6 @@
 using NameSplitter.Views;
 using Prism.Ioc;
 using Prism.Regions;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Windows;
 
@@ -22,14 +21,12 @@ namespace NameSplitter
         {
             base.OnInitialized();
             Container.Resolve<IRegionManager>().RegisterViewWithRegion("ContentRegion", typeof(SplitterView));
-            System.Diagnostics.Process clientProcess = new Process();
-            string jarPath = "";
-            string argumentsFortheJarFile = "";
-            clientProcess.StartInfo.FileName = "java";
-            clientProcess.StartInfo.Arguments = @"-jar " + jarPath + " " + argumentsFortheJarFile;
-            clientProcess.Start();
         }
 
+        /// <summary>
+        /// Used to register types with the container that will be used by this application.
+        /// </summary>
+        /// <param name="containerRegistry"></param>
         protected override void RegisterTypes( IContainerRegistry containerRegistry )
         {
             containerRegistry.RegisterForNavigation<MainWindowView>(nameof(MainWindowView));

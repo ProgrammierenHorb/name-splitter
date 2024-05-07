@@ -19,7 +19,7 @@ namespace NameSplitter.ViewModels
     /// It handles parsing user input, displaying parsed elements, managing available titles, and updating the UI accordingly.
     /// </summary>
 
-    public class SplitterViewModel : BindableBase
+    public class SplitterViewModel: BindableBase
     {
         #region privateVariables
 
@@ -157,11 +157,50 @@ namespace NameSplitter.ViewModels
         #endregion Properties
 
         /// <summary>
+        /// Contsructor recives IApiClient and IEventAggregator via dependency injection.
+        /// Delegate commands and AvailableTitles list get initialized.
+        /// </summary>
+        /// <param name="apiClient"></param>
+        /// <param name="eventAggregator"></param>
+        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
+        {
+            _apiClient = apiClient;
+            _eventAggregator = eventAggregator;
+
+            ButtonParse = new DelegateCommand(ButtonParseHandler);
+            ButtonReset = new DelegateCommand(ButtonResetHandler);
+            AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
+            ButtonAddManually = new DelegateCommand(() => OpenParsedElementsView(
+                new ParseResponseDto
+                {
+                    StructuredName = new StructuredName
+                    {
+                        Key = Guid.NewGuid()
+                    }
+                }, true));
+
+            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
+            _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
+            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(( value ) => OpenParsedElementsView(value));
+            _eventAggregator.GetEvent<OpenRemoveTitleView>().Subscribe(( title ) => OpenRemoveTitleView(title));
+            _eventAggregator.GetEvent<UpdateAvailableTitleList>().Subscribe(( title ) => UpdateAvailableTitleList(title));
+
+            Task.Run(async () =>
+            {
+                var titles = await _apiClient.GetTitles();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    AvailableTitles.AddRange(titles);
+                });
+            });
+        }
+
+        /// <summary>
         /// opens the dialog to add a new title and refreshes the title list
         /// </summary>
         private void AddTitleCommandHandler()
         {
-            if (!_dialogOpen)
+            if( !_dialogOpen )
             {
                 _dialogOpen = true;
 
@@ -189,7 +228,7 @@ namespace NameSplitter.ViewModels
         /// </summary>
         private void ButtonParseHandler()
         {
-            if (!_dialogOpen)
+            if( !_dialogOpen )
             {
                 _dialogOpen = true;
                 Task.Run(async () =>
@@ -198,9 +237,9 @@ namespace NameSplitter.ViewModels
 
                     ErrorMessage = string.Join(", ", result.ErrorMessages.Select(x => x.Message));
 
-                    if (result.StructuredName is not null)
+                    if( result.StructuredName is not null )
                     {
-                        if (result.StructuredName.Titles != null)
+                        if( result.StructuredName.Titles != null )
                             Titles = string.Join(", ", result.StructuredName.Titles);
 
                         Gender = result.StructuredName.Gender;
@@ -212,7 +251,7 @@ namespace NameSplitter.ViewModels
                     //der dispatcher-thread wird benötigt, um die GUI anpassen zu können
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        if (ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte"))
+                        if( ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte") )
                         {
                             MessageBox.Show("Der Server konnte nicht erreicht werden \nBitte überprüfen Sie, ob das Backend gestartert wurde. " +
                                 "Den Status können Sie unter http://localhost:8080/api/status abfragen.", "Keine Verbindung zum Server möglich", MessageBoxButton.OK,
@@ -257,9 +296,26 @@ namespace NameSplitter.ViewModels
         /// <param name="manuallyOpened"></param>
         private void OpenParsedElementsView( ParseResponseDto parseResponse, bool manuallyOpened = false )
         {
-            ParsedElements _parsedView = new ParsedElements(_eventAggregator);
-            _parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, _parsedView, parseResponse, manuallyOpened, Input);
-            _parsedView.ShowDialog();
+            ParsedElementsView parsedView = new ParsedElementsView(_eventAggregator);
+            parsedView.DataContext = new ParsedElementsViewModel(_apiClient, _eventAggregator, parsedView, parseResponse, manuallyOpened, Input);
+            parsedView.ShowDialog();
+        }
+
+        /// <summary>
+        /// Opens the remove title view.
+        /// </summary>
+        /// <param name="title">The title.</param>
+        private void OpenRemoveTitleView( string title )
+        {
+            RemoveTitleView removeTitleView = new RemoveTitleView();
+            removeTitleView.DataContext = new RemoveTitleViewModel(_apiClient, _eventAggregator, removeTitleView, title);
+            removeTitleView.ShowDialog();
+        }
+
+        private void UpdateAvailableTitleList( string title )
+        {
+            if( AvailableTitles.Any(element => element == title) )
+                AvailableTitles.Remove(title);
         }
 
         /// <summary>
@@ -271,47 +327,10 @@ namespace NameSplitter.ViewModels
             bool listContainsElement = EnteredElements.Any(element => element.Key == updatedElement.Key);
             updatedElement.GenderString = ConvertGenderEnumToString(updatedElement.Gender);
 
-            if (listContainsElement)
+            if( listContainsElement )
                 EnteredElements.Remove(EnteredElements.Where(element => element.Key == updatedElement.Key).Single());
 
             EnteredElements.Add(updatedElement);
-        }
-
-        /// <summary>
-        /// Contsructor recives IApiClient and IEventAggregator via dependency injection.
-        /// Delegate commands and AvailableTitles list get initialized.
-        /// </summary>
-        /// <param name="apiClient"></param>
-        /// <param name="eventAggregator"></param>
-        public SplitterViewModel( IApiClient apiClient, IEventAggregator eventAggregator )
-        {
-            _apiClient = apiClient;
-            _eventAggregator = eventAggregator;
-
-            ButtonParse = new DelegateCommand(ButtonParseHandler);
-            ButtonReset = new DelegateCommand(ButtonResetHandler);
-            AddTitleCommand = new DelegateCommand(AddTitleCommandHandler);
-            ButtonAddManually = new DelegateCommand(() => OpenParsedElementsView(
-                new ParseResponseDto
-                {
-                    StructuredName = new StructuredName
-                    {
-                        Key = Guid.NewGuid()
-                    }
-                }, true));
-
-            _eventAggregator.GetEvent<ParseEvent>().Subscribe(ButtonParseHandler);
-            _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
-            _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(( value ) => OpenParsedElementsView(value));
-
-            Task.Run(async () =>
-            {
-                var titles = await _apiClient.GetTitles();
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    AvailableTitles.AddRange(titles);
-                });
-            });
         }
     }
 }

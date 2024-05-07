@@ -105,7 +105,7 @@
             </ListView.View>
         </ListView>
         <ListView Name="AvailableTitlesListView" Grid.Column="4" Grid.Row="2" Grid.RowSpan="3" ItemsSource="{Binding AvailableTitles}"
-                  MouseDoubleClick="ListView_MouseDoubleClick"  d:ItemsSource="{d:SampleData ItemCount=15}" Width="Auto" Height="Auto"
+                  MouseDoubleClick="ListViewTitle_MouseDoubleClick"  d:ItemsSource="{d:SampleData ItemCount=15}" Width="Auto" Height="Auto"
                   SelectionMode="Single">
             <ListView.View>
                 <GridView>

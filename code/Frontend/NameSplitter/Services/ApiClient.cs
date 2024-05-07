@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NameSplitter.Services
 {
-    public class ApiClient : IApiClient
+    public class ApiClient: IApiClient
     {
         private readonly HttpClient _client;
 
@@ -22,21 +22,13 @@ namespace NameSplitter.Services
         {
             try
             {
-                var parameters = new
-                {
-                    name,
-                    regex
-                };
-
-                var jsonContent = JsonSerializer.Serialize(parameters);
+                var jsonContent = JsonSerializer.Serialize(new { name, regex });
 
                 var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
                 var response = await _client.PostAsync($"addTitle", content);
-                if (response.IsSuccessStatusCode)
-                {
+                if( response.IsSuccessStatusCode )
                     return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
-                }
 
                 return false;
             }
@@ -51,12 +43,12 @@ namespace NameSplitter.Services
             try
             {
                 var response = await _client.GetAsync($"getTitles");
-                if (response.IsSuccessStatusCode)
+                if( response.IsSuccessStatusCode )
                     return JsonSerializer.Deserialize<List<string>>(await response.Content.ReadAsStringAsync());
 
                 return new List<string> { "Keine Titel verfügbar" };
             }
-            catch (Exception)
+            catch( Exception )
             {
                 return new List<string> { "Keine Titel verfügbar" };
             }
@@ -67,18 +59,38 @@ namespace NameSplitter.Services
             try
             {
                 var response = await _client.GetAsync($"parse/{input}");
-                if (response.IsSuccessStatusCode)
+                if( response.IsSuccessStatusCode )
                     return JsonSerializer.Deserialize<ParseResponseDto>(await response.Content.ReadAsStringAsync());
 
                 return new ParseResponseDto { ErrorMessages = new List<ErrorDto> { new ErrorDto("Der eingegebene String konnte nicht geparsed werden!") } };
             }
-            catch (HttpRequestException ex)
+            catch( HttpRequestException ex )
             {
                 return new ParseResponseDto { ErrorMessages = new List<ErrorDto> { new ErrorDto(ex.Message) } };
             }
-            catch (Exception ex)
+            catch( Exception ex )
             {
                 return new ParseResponseDto { ErrorMessages = new List<ErrorDto> { new ErrorDto("Beim Parsen trat ein Fehler auf:" + ex.Message) } };
+            }
+        }
+
+        public async Task<bool> RemoveTitle( string title )
+        {
+            try
+            {
+                var jsonContent = JsonSerializer.Serialize(title);
+
+                var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await _client.PostAsync($"removeTitle", content);
+                if( response.IsSuccessStatusCode )
+                    return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
+
+                return false;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -87,7 +99,7 @@ namespace NameSplitter.Services
             try
             {
                 var response = await _client.PostAsJsonAsync($"save", structuredName);
-                if (response.IsSuccessStatusCode)
+                if( response.IsSuccessStatusCode )
                 {
                     var structuredNameResponse = JsonSerializer.Deserialize<StructuredName>(await response.Content.ReadAsStringAsync());
                     structuredNameResponse.Key = structuredName.Key;
@@ -96,7 +108,7 @@ namespace NameSplitter.Services
 
                 return null;
             }
-            catch (Exception)
+            catch( Exception )
             {
                 return null;
             }

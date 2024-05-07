@@ -22,37 +22,13 @@ namespace NameSplitter.ViewModels
     /// Viewmodel for ParsedElements view,
     /// used to display and validate the result of the parser
     /// </summary>
-    public class ParsedElementsViewModel : BindableBase
+    public class ParsedElementsViewModel: BindableBase
     {
-        /// <summary>
-        /// initializes the textbox values
-        /// </summary>
-        /// <param name="parseResponse"></param>
-        private void InitView( ParseResponseDto parseResponse )
-        {
-            if (parseResponse is null)
-            {
-                ResponseText.Add(new TextWithColor("Es ist ein Fehler aufgetreten. Bitte parsen Sie Ihre Eingabe erneut.", new SolidColorBrush(Colors.Red)));
-                return;
-            }
+        public DelegateCommand AddNewTitleCommand { get; set; }
 
-            if (parseResponse.StructuredName is null)
-                return;
+        public DelegateCommand ButtonCancle { get; set; }
 
-            if (parseResponse.StructuredName.Titles is not null)
-            {
-                foreach (var title in parseResponse.StructuredName.Titles)
-                {
-                    Titles.Add(new Title(title));
-                }
-            }
-
-            FirstName = parseResponse.StructuredName.FirstName;
-            LastName = parseResponse.StructuredName.LastName;
-            Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
-
-            InitRadioButtons();
-        }
+        public DelegateCommand ButtonSave { get; set; }
 
         /// <summary>
         /// constructor, which sets up the descriptive label in the view and the delegate commands
@@ -62,14 +38,14 @@ namespace NameSplitter.ViewModels
         /// <param name="parsedElementsView"></param>
         /// <param name="parsedElement"></param>
         /// <param name="manuallyOpened"></param>
-        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElements parsedElementsView, ParseResponseDto parsedElement, bool manuallyOpened, string input )
+        public ParsedElementsViewModel( IApiClient apiClient, IEventAggregator eventAggregator, ParsedElementsView parsedElementsView, ParseResponseDto parsedElement, bool manuallyOpened, string input )
         {
             _apiClient = apiClient;
             _eventAggregator = eventAggregator;
             _parsedElementsView = parsedElementsView;
             _key = parsedElement.StructuredName?.Key ?? Guid.NewGuid();
             Input = input;
-            if (manuallyOpened)
+            if( manuallyOpened )
             {
                 _foregroundColor = "Green";
                 _viewsTitle = "Elemente manuell eintragen";
@@ -77,7 +53,7 @@ namespace NameSplitter.ViewModels
             }
             else
             {
-                if (parsedElement.ErrorMessages != null && parsedElement.ErrorMessages.Any())
+                if( parsedElement.ErrorMessages != null && parsedElement.ErrorMessages.Any() )
                 {
                     _foregroundColor = "Red";
                     _viewsTitle = "Das Parsen ist fehlgeschlagen";
@@ -107,12 +83,6 @@ namespace NameSplitter.ViewModels
             InitView(parsedElement);
         }
 
-        public DelegateCommand AddNewTitleCommand { get; set; }
-
-        public DelegateCommand ButtonCancle { get; set; }
-
-        public DelegateCommand ButtonSave { get; set; }
-
         public void AddNewTitleCommandHandler()
         {
             Titles.Add(new Title("-Keine Auswahl-"));
@@ -124,10 +94,10 @@ namespace NameSplitter.ViewModels
         public void CancleButtonHandler() =>
             _parsedElementsView.Close();
 
-        public void FormatResponseText( ParsedElements parsedElementsView, ParseResponseDto parsedElement )
+        public void FormatResponseText( ParsedElementsView parsedElementsView, ParseResponseDto parsedElement )
         {
             List<TextWithColor> inputTextWithColor = new();
-            if (parsedElement.ErrorMessages == null || !parsedElement.ErrorMessages.Any())
+            if( parsedElement.ErrorMessages == null || !parsedElement.ErrorMessages.Any() )
             {
                 inputTextWithColor.Add(new TextWithColor(Input, new SolidColorBrush(Colors.Black)));
                 ResponseText.Add(new TextWithColor("Im Folgenden stehen alle gefundenen Elemente, welche Sie nun noch vor dem Speichern anpassen können.", new SolidColorBrush(Colors.Green)));
@@ -137,10 +107,10 @@ namespace NameSplitter.ViewModels
                 var errors = parsedElement.ErrorMessages.OrderBy(e => e.StartPos).ToList();
                 string inputStr = Input;
                 int currentPos = 0;
-                for (int i = 0; i < errors.Count; i++)
+                for( int i = 0; i < errors.Count; i++ )
                 {
                     var error = errors[i];
-                    if (currentPos < error.StartPos)
+                    if( currentPos < error.StartPos )
                     {
                         // add a black tuple up to error.StartPos
                         string str = inputStr.Substring(currentPos, error.StartPos - currentPos);
@@ -158,7 +128,7 @@ namespace NameSplitter.ViewModels
                 }
 
                 // if there's any string left after last error, add it in black
-                if (currentPos < inputStr.Length)
+                if( currentPos < inputStr.Length )
                 {
                     string endStr = inputStr.Substring(currentPos);
                     inputTextWithColor.Add(new TextWithColor(endStr, new SolidColorBrush(Colors.Black)));
@@ -182,7 +152,7 @@ namespace NameSplitter.ViewModels
             _maleIsChecked = false;
             _femaleIsChecked = false;
 
-            switch (Gender)
+            switch( Gender )
             {
                 case GenderEnum.MALE:
                     _maleIsChecked = true;
@@ -213,10 +183,40 @@ namespace NameSplitter.ViewModels
             };
 
             var adjustedStructuredName = await _apiClient.SaveParsedElement(structuredName);
-            if (adjustedStructuredName is not null)
+            if( adjustedStructuredName is not null )
                 _eventAggregator.GetEvent<UpdateParsedList>().Publish(adjustedStructuredName);
 
             _parsedElementsView.Close();
+        }
+
+        /// <summary>
+        /// initializes the textbox values
+        /// </summary>
+        /// <param name="parseResponse"></param>
+        private void InitView( ParseResponseDto parseResponse )
+        {
+            if( parseResponse is null )
+            {
+                ResponseText.Add(new TextWithColor("Es ist ein Fehler aufgetreten. Bitte parsen Sie Ihre Eingabe erneut.", new SolidColorBrush(Colors.Red)));
+                return;
+            }
+
+            if( parseResponse.StructuredName is null )
+                return;
+
+            if( parseResponse.StructuredName.Titles is not null )
+            {
+                foreach( var title in parseResponse.StructuredName.Titles )
+                {
+                    Titles.Add(new Title(title));
+                }
+            }
+
+            FirstName = parseResponse.StructuredName.FirstName;
+            LastName = parseResponse.StructuredName.LastName;
+            Gender = parseResponse.StructuredName?.Gender ?? GenderEnum.DIVERSE;
+
+            InitRadioButtons();
         }
 
         #region private variables
@@ -233,7 +233,7 @@ namespace NameSplitter.ViewModels
         private Guid _key;
         private string _lastName;
         private bool _maleIsChecked = false;
-        private ParsedElements _parsedElementsView;
+        private ParsedElementsView _parsedElementsView;
         private List<TextWithColor> _responseText = new();
         private ObservableCollection<Title> _titles = new ObservableCollection<Title>();
         private string _viewsTitle = "Das Parsen ist fehlgeschlagen";
@@ -267,7 +267,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _diversIsChecked = value;
-                if (_diversIsChecked) _gender = GenderEnum.DIVERSE;
+                if( _diversIsChecked ) _gender = GenderEnum.DIVERSE;
                 RaisePropertyChanged(nameof(DiversIsChecked));
             }
         }
@@ -281,7 +281,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _femaleIsChecked = value;
-                if (_femaleIsChecked) _gender = GenderEnum.FEMALE;
+                if( _femaleIsChecked ) _gender = GenderEnum.FEMALE;
                 RaisePropertyChanged(nameof(FemaleIsChecked));
             }
         }
@@ -360,7 +360,7 @@ namespace NameSplitter.ViewModels
             set
             {
                 _maleIsChecked = value;
-                if (_maleIsChecked) _gender = GenderEnum.MALE;
+                if( _maleIsChecked ) _gender = GenderEnum.MALE;
                 RaisePropertyChanged(nameof(MaleIsChecked));
             }
         }
