@@ -3,6 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace NameSplitter.DTOs
 {
+    /// <summary>
+    /// Contains properties which describe a shown
+    /// title on the rigth hand side in the SplitterView
+    /// </summary>
     public class Title
     {
         [JsonIgnore]

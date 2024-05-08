@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace NameSplitter.Services
 {
+    /// <summary>
+    /// Implements the methodes of IApiClient
+    /// </summary>
+    /// <seealso cref="NameSplitter.Services.IApiClient" />
     public class ApiClient: IApiClient
     {
         private readonly HttpClient _client;
@@ -18,6 +22,12 @@ namespace NameSplitter.Services
             _client.BaseAddress = new Uri(@"http://localhost:8080/api/");
         }
 
+        /// <summary>
+        /// Adds the title and its regex in the backend.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="regex">The regex.</param>
+        /// <returns></returns>
         public async Task<bool> AddTitle( string name, string regex )
         {
             try
@@ -38,6 +48,12 @@ namespace NameSplitter.Services
             }
         }
 
+        /// <summary>
+        /// Gets all titles which are hold in the backend
+        /// </summary>
+        /// <returns>
+        /// List of titles as string
+        /// </returns>
         public async Task<List<Title>> GetTitles()
         {
             try
@@ -54,6 +70,14 @@ namespace NameSplitter.Services
             }
         }
 
+        /// <summary>
+        /// Calls the backend with the given input to parse
+        /// the input.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns>
+        /// ParseResponseDto with all found elemnts splitted
+        /// </returns>
         public async Task<ParseResponseDto> Parse( string input )
         {
             try
@@ -76,6 +100,12 @@ namespace NameSplitter.Services
             }
         }
 
+        /// <summary>
+        /// Removes a title which is provided by the backend.
+        /// After calling this methode, the backend deletes it.
+        /// </summary>
+        /// <param name="title">The title.</param>
+        /// <returns>bool if it was removed successfully</returns>
         public async Task<bool> RemoveTitle( Title title )
         {
             try
@@ -96,6 +126,14 @@ namespace NameSplitter.Services
             }
         }
 
+        /// <summary>
+        /// Calls the backend and gets not only the
+        /// splitted elements but also the standardized salutaion
+        /// </summary>
+        /// <param name="structuredName"></param>
+        /// <returns>
+        /// True if successful
+        /// </returns>
         public async Task<StructuredName> SaveParsedElement( StructuredName structuredName )
         {
             try

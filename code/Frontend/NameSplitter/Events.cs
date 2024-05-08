@@ -1,6 +1,10 @@
 ﻿using NameSplitter.DTOs;
 using Prism.Events;
 
+/// <summary>
+/// This namespace contains classes which are used to realise
+/// the publish subscriber pattern.
+/// </summary>
 namespace NameSplitter.Events
 {
     public class OpenParsedElementsView: PubSubEvent<ParseResponseDto>

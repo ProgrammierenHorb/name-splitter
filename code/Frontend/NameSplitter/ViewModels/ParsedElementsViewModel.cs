@@ -80,10 +80,12 @@ namespace NameSplitter.ViewModels
             InitView(parsedElement);
         }
 
-        public void AddNewTitleCommandHandler()
-        {
+        /// <summary>
+        /// Adds another ComboBox inside the view.
+        /// The initial value of it is "-Keine Auswahl-"
+        /// </summary>
+        public void AddNewTitleCommandHandler() =>
             Titles.Add(new Title { Name = "-Keine Auswahl-" });
-        }
 
         /// <summary>
         /// Cancel command to close the window
@@ -91,6 +93,12 @@ namespace NameSplitter.ViewModels
         public void CancleButtonHandler() =>
             _parsedElementsView.Close();
 
+        /// <summary>
+        /// If there are errors after parsing the users entered string, the string gets
+        /// formatted by changing the colors at the position at which the error happened.
+        /// </summary>
+        /// <param name="parsedElementsView">The parsed elements view.</param>
+        /// <param name="parsedElement">The parsed element.</param>
         public void FormatResponseText( ParsedElementsView parsedElementsView, ParseResponseDto parsedElement )
         {
             List<TextWithColor> inputTextWithColor = new();
@@ -134,6 +142,10 @@ namespace NameSplitter.ViewModels
             parsedElementsView.WriteInTextbox(inputTextWithColor);
         }
 
+        /// <summary>
+        /// Gets the random color of the hexadecimal.
+        /// </summary>
+        /// <returns>color as a string</returns>
         public string GetRandomHexColor()
         {
             Random random = new Random();

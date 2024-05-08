@@ -183,7 +183,7 @@ namespace NameSplitter.ViewModels
             _eventAggregator.GetEvent<UpdateParsedList>().Subscribe(UpdateParsedElementsList);
             _eventAggregator.GetEvent<OpenParsedElementsView>().Subscribe(( value ) => OpenParsedElementsView(value));
             _eventAggregator.GetEvent<OpenRemoveTitleView>().Subscribe(( title ) => OpenRemoveTitleView(title));
-            _eventAggregator.GetEvent<UpdateAvailableTitleList>().Subscribe(( title ) => UpdateAvailableTitleList(title));
+            _eventAggregator.GetEvent<UpdateAvailableTitleList>().Subscribe(( title ) => RemoveTitleInAvailableTitleList(title));
 
             Task.Run(async () =>
             {
@@ -249,7 +249,7 @@ namespace NameSplitter.ViewModels
                         _key = Guid.NewGuid();
                     }
 
-                    //der dispatcher-thread wird benötigt, um die GUI anpassen zu können
+                    //dispatcher thread is needed to update the gui
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         if( ErrorMessage.Contains("Es konnte keine Verbindung hergestellt werden, da der Zielcomputer die Verbindung verweigerte") )
@@ -269,7 +269,8 @@ namespace NameSplitter.ViewModels
         }
 
         /// <summary>
-        /// restes the list
+        /// resets the list of all saved
+        /// input strings which got parsed
         /// </summary>
         private void ButtonResetHandler() =>
             EnteredElements.Clear();
@@ -313,7 +314,11 @@ namespace NameSplitter.ViewModels
             removeTitleView.ShowDialog();
         }
 
-        private void UpdateAvailableTitleList( Title title )
+        /// <summary>
+        /// Removes the title in available title list.
+        /// </summary>
+        /// <param name="title">The title.</param>
+        private void RemoveTitleInAvailableTitleList( Title title )
         {
             if( AvailableTitles.Any(element => element == title) )
                 AvailableTitles.Remove(title);

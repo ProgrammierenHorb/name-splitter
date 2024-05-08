@@ -1,9 +1,7 @@
-﻿using NameSplitter.DTOs;
-using NameSplitter.Services;
+﻿using NameSplitter.Services;
 using NameSplitter.Views;
 using Prism.Commands;
 using Prism.Mvvm;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace NameSplitter.ViewModels
@@ -12,26 +10,8 @@ namespace NameSplitter.ViewModels
     /// Viewmodel for AddTitle view,
     /// used to add new titles
     /// </summary>
-    public class AddTitleViewModel : BindableBase
+    public class AddTitleViewModel: BindableBase
     {
-        private IApiClient _apiClient;
-        private bool _useRegex = false;
-        private AddTitleView _window;
-
-        /// <summary>
-        /// constructor and initailsation of delegate commands
-        /// </summary>
-        /// <param name="window"></param>
-        /// <param name="apiClient"></param>
-        public AddTitleViewModel( AddTitleView window, IApiClient apiClient )
-        {
-            _window = window;
-            _apiClient = apiClient;
-            AddTitleCommand = new DelegateCommand(AddTitleCommandHandlerAsync);
-
-            ButtonCancle = new DelegateCommand(CancleButtonHandler);
-        }
-
         public DelegateCommand AddTitleCommand { get; set; }
         public DelegateCommand ButtonCancle { get; set; }
 
@@ -68,9 +48,27 @@ namespace NameSplitter.ViewModels
         {
             get
             {
-                if (UseRegex) return Visibility.Visible;
+                if( UseRegex ) return Visibility.Visible;
                 return Visibility.Hidden;
             }
+        }
+
+        private IApiClient _apiClient;
+        private bool _useRegex = false;
+        private AddTitleView _window;
+
+        /// <summary>
+        /// constructor and initailsation of delegate commands
+        /// </summary>
+        /// <param name="window"></param>
+        /// <param name="apiClient"></param>
+        public AddTitleViewModel( AddTitleView window, IApiClient apiClient )
+        {
+            _window = window;
+            _apiClient = apiClient;
+            AddTitleCommand = new DelegateCommand(AddTitleCommandHandlerAsync);
+
+            ButtonCancle = new DelegateCommand(CancleButtonHandler);
         }
 
         /// <summary>
@@ -79,11 +77,11 @@ namespace NameSplitter.ViewModels
         public async void AddTitleCommandHandlerAsync()
         {
             bool response;
-            if (UseRegex)
+            if( UseRegex )
                 response = await _apiClient.AddTitle(Input, InputRegex);
             else
                 response = await _apiClient.AddTitle(Input, Input);
-            if (response)
+            if( response )
             {
                 _window.Close();
             }
