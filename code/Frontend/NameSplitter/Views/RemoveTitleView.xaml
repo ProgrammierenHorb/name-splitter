@@ -6,7 +6,7 @@
         xmlns:viewmodels="clr-namespace:NameSplitter.ViewModels"
         d:DataContext="{d:DesignInstance Type=viewmodels:RemoveTitleViewModel}"
         mc:Ignorable="d"
-        Title="Titel löschen" MinWidth="200" MinHeight="150" Height="150" Width="200">
+        Title="Titel löschen" MinWidth="300" MinHeight="150" Height="150" Width="300">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
