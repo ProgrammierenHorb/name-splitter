@@ -9,7 +9,7 @@ namespace NameSplitter.Converter
     /// <summary>
     /// Converts IEnumerable<string> to joined string and backwards
     /// </summary>
-    public class StringToListConverter : IValueConverter
+    public class StringToListConverter: IValueConverter
     {
         /// <summary>
         /// Converts a IEnumerable<string> to a string, joined with ", "
@@ -21,10 +21,9 @@ namespace NameSplitter.Converter
         /// <returns>string as object</returns>
         public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
         {
-            if (value is IEnumerable<string> stringList)
-            {
+            if( value is IEnumerable<string> stringList )
                 return string.Join(", ", stringList);
-            }
+
             return "";
         }
 
@@ -38,7 +37,7 @@ namespace NameSplitter.Converter
         /// <returns>List<string> as object</returns>
         public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture )
         {
-            if (value is string stringValue)
+            if( value is string stringValue )
                 return stringValue.Split(',').Where(element => element is not "" && element is not " ").ToList();
 
             return new List<string>();
