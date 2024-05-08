@@ -36,7 +36,7 @@ namespace NameSplitter.ViewModels
             _removeTitleView = removeTitleView;
             _eventAggregator = eventAggregator;
 
-            Title = $"Sind Sie sicher, dass sie {title} löschen möchten?";
+            Title = $"Sind Sie sicher, dass sie \"{title}\" löschen möchten?";
 
             RemoveButton = new DelegateCommand(async () =>
             {
