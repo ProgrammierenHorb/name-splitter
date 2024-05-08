@@ -38,19 +38,19 @@ namespace NameSplitter.Services
             }
         }
 
-        public async Task<List<string>> GetTitles()
+        public async Task<List<Title>> GetTitles()
         {
             try
             {
                 var response = await _client.GetAsync($"getTitles");
                 if( response.IsSuccessStatusCode )
-                    return JsonSerializer.Deserialize<List<string>>(await response.Content.ReadAsStringAsync());
+                    return JsonSerializer.Deserialize<List<Title>>(await response.Content.ReadAsStringAsync());
 
-                return new List<string> { "Keine Titel verfügbar" };
+                return new List<Title> { new Title { Name = "Keine Titel verfügbar" } };
             }
             catch( Exception )
             {
-                return new List<string> { "Keine Titel verfügbar" };
+                return new List<Title> { new Title { Name = "Keine Titel verfügbar" } };
             }
         }
 
@@ -58,7 +58,9 @@ namespace NameSplitter.Services
         {
             try
             {
-                var response = await _client.GetAsync($"parse/{input}");
+                var content = new StringContent(input, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await _client.PostAsync($"parse", content);
                 if( response.IsSuccessStatusCode )
                     return JsonSerializer.Deserialize<ParseResponseDto>(await response.Content.ReadAsStringAsync());
 
@@ -74,7 +76,7 @@ namespace NameSplitter.Services
             }
         }
 
-        public async Task<bool> RemoveTitle( string title )
+        public async Task<bool> RemoveTitle( Title title )
         {
             try
             {

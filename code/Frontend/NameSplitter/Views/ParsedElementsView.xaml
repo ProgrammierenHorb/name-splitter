@@ -83,7 +83,7 @@
 
                             <ComboBox xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
                             ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.AllAvailableTitles, diag:PresentationTraceSources.TraceLevel=High}"
-                            SelectedItem="{Binding Value, Mode=TwoWay, diag:PresentationTraceSources.TraceLevel=High}"
+                            SelectedItem="{Binding Name, diag:PresentationTraceSources.TraceLevel=High}"
                             Margin="0,5,0,0" />
                         </DockPanel>
                     </DataTemplate>

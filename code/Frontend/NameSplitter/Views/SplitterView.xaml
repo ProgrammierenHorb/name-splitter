@@ -121,7 +121,8 @@
                             <Setter Property="Background" Value="LightBlue" />
                         </Style>
                     </GridView.ColumnHeaderContainerStyle>
-                    <GridViewColumn Header="Verfügbare Titel" DisplayMemberBinding="{Binding}" Width="Auto" />
+                    <GridViewColumn Header="Verfügbare Titel" DisplayMemberBinding="{Binding Name}" Width="Auto" />
+                    <GridViewColumn Header="Regex" DisplayMemberBinding="{Binding Regex}" Width="Auto" />
                 </GridView>
             </ListView.View>
         </ListView>

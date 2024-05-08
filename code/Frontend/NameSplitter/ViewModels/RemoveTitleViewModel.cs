@@ -1,4 +1,5 @@
-﻿using NameSplitter.Events;
+﻿using NameSplitter.DTOs;
+using NameSplitter.Events;
 using NameSplitter.Services;
 using NameSplitter.Views;
 using Prism.Commands;
@@ -30,7 +31,7 @@ namespace NameSplitter.ViewModels
         private RemoveTitleView _removeTitleView;
         private string _title;
 
-        public RemoveTitleViewModel( IApiClient apiClient, IEventAggregator eventAggregator, RemoveTitleView removeTitleView, string title )
+        public RemoveTitleViewModel( IApiClient apiClient, IEventAggregator eventAggregator, RemoveTitleView removeTitleView, Title title )
         {
             _apiClient = apiClient;
             _removeTitleView = removeTitleView;

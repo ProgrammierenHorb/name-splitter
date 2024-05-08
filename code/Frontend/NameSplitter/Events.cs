@@ -6,7 +6,7 @@ namespace NameSplitter.Events
     public class OpenParsedElementsView: PubSubEvent<ParseResponseDto>
     { }
 
-    public class OpenRemoveTitleView: PubSubEvent<string>
+    public class OpenRemoveTitleView: PubSubEvent<Title>
     { }
 
     public class ParseEvent: PubSubEvent
@@ -15,7 +15,7 @@ namespace NameSplitter.Events
     public class SaveParsedElements: PubSubEvent
     { }
 
-    public class UpdateAvailableTitleList: PubSubEvent<string>
+    public class UpdateAvailableTitleList: PubSubEvent<Title>
     { }
 
     public class UpdateParsedList: PubSubEvent<StructuredName>

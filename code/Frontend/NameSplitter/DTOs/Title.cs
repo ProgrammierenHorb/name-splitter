@@ -1,18 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NameSplitter.Enum;
+using System.Text.Json.Serialization;
 
 namespace NameSplitter.DTOs
 {
     public class Title
     {
-        public Title( string value )
+        [JsonIgnore]
+        public GenderEnum Gender => _genderEnum;
+
+        [JsonPropertyName("gender")]
+        public string GenderString
         {
-            Value = value;
+            get { return _genderString; }
+            set
+            {
+                _genderString = value;
+
+                switch( _genderString )
+                {
+                    case "MALE":
+                        _genderEnum = GenderEnum.MALE;
+                        break;
+
+                    case "FEMALE":
+                        _genderEnum = GenderEnum.FEMALE;
+                        break;
+
+                    case "DIVERSE":
+                        _genderEnum = GenderEnum.DIVERSE;
+                        break;
+                }
+            }
         }
 
-        public string Value { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("priority")]
+        public int Priority { get; set; }
+
+        [JsonPropertyName("regex")]
+        public string Regex { get; set; }
+
+        private GenderEnum _genderEnum;
+
+        private string _genderString;
     }
 }

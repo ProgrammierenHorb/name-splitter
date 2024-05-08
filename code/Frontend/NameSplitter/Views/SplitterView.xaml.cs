@@ -32,8 +32,8 @@ namespace NameSplitter.Views
 
         private void ListViewTitle_MouseDoubleClick( object sender, MouseButtonEventArgs e )
         {
-            if( AvailableTitlesListView.SelectedItem != null && AvailableTitlesListView.SelectedItem as string != "Keine Titel verfügbar" )
-                _eventAggregator.GetEvent<OpenRemoveTitleView>().Publish(AvailableTitlesListView.SelectedItem as string);
+            if( AvailableTitlesListView.SelectedItem != null && (AvailableTitlesListView.SelectedItem as Title).Name != "Keine Titel verfügbar" )
+                _eventAggregator.GetEvent<OpenRemoveTitleView>().Publish(AvailableTitlesListView.SelectedItem as Title);
         }
 
         private void Window_KeyUp( object sender, KeyEventArgs e )

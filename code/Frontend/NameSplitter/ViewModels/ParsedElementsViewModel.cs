@@ -1,5 +1,4 @@
-﻿using DryIoc;
-using NameSplitter.DTOs;
+﻿using NameSplitter.DTOs;
 using NameSplitter.Enum;
 using NameSplitter.Events;
 using NameSplitter.Services;
@@ -12,8 +11,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace NameSplitter.ViewModels
@@ -74,9 +71,9 @@ namespace NameSplitter.ViewModels
 
             Task.Run(() =>
             {
-                AllAvailableTitles = new ObservableCollection<string>(_apiClient.GetTitles().Result)
+                AllAvailableTitles = new ObservableCollection<string>(_apiClient.GetTitles().Result.DistinctBy(x => x.Name).Select(x => x.Name))
                 {
-                    "-Keine Auswahl-" // add placeholder
+                     "-Keine Auswahl-" // add placeholder
                 };
             }).Wait();
 
@@ -85,7 +82,7 @@ namespace NameSplitter.ViewModels
 
         public void AddNewTitleCommandHandler()
         {
-            Titles.Add(new Title("-Keine Auswahl-"));
+            Titles.Add(new Title { Name = "-Keine Auswahl-" });
         }
 
         /// <summary>
@@ -175,7 +172,7 @@ namespace NameSplitter.ViewModels
         {
             StructuredName structuredName = new StructuredName
             {
-                Titles = Titles.Where(x => x.Value != "-Keine Auswahl-").Select(x => x.Value).ToList() ?? new List<string>(),
+                Titles = Titles.Where(x => x.Name != "-Keine Auswahl-").Select(element => element.Name).ToList() ?? new List<string>(),
                 FirstName = this.FirstName ?? null,
                 LastName = this.LastName ?? "Unbekannt",
                 GenderString = this.Gender.ToString() ?? GenderEnum.DIVERSE.ToString(),
@@ -208,7 +205,7 @@ namespace NameSplitter.ViewModels
             {
                 foreach( var title in parseResponse.StructuredName.Titles )
                 {
-                    Titles.Add(new Title(title));
+                    Titles.Add(new Title { Name = title });
                 }
             }
 

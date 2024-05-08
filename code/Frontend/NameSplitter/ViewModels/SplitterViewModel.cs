@@ -48,7 +48,7 @@ namespace NameSplitter.ViewModels
 
         #region ObservableCollections
 
-        public ObservableCollection<string> AvailableTitles { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<Title> AvailableTitles { get; set; } = new ObservableCollection<Title>();
         public ObservableCollection<StructuredName> EnteredElements { get; set; } = new ObservableCollection<StructuredName>();
 
         #endregion ObservableCollections
@@ -235,7 +235,8 @@ namespace NameSplitter.ViewModels
                 {
                     var result = await _apiClient.Parse(Input);
 
-                    ErrorMessage = string.Join(", ", result.ErrorMessages.Select(x => x.Message));
+                    if( result is not null && result.ErrorMessages is not null )
+                        ErrorMessage = string.Join(", ", result.ErrorMessages.Select(x => x.Message));
 
                     if( result.StructuredName is not null )
                     {
@@ -305,14 +306,14 @@ namespace NameSplitter.ViewModels
         /// Opens the remove title view.
         /// </summary>
         /// <param name="title">The title.</param>
-        private void OpenRemoveTitleView( string title )
+        private void OpenRemoveTitleView( Title title )
         {
             RemoveTitleView removeTitleView = new RemoveTitleView();
             removeTitleView.DataContext = new RemoveTitleViewModel(_apiClient, _eventAggregator, removeTitleView, title);
             removeTitleView.ShowDialog();
         }
 
-        private void UpdateAvailableTitleList( string title )
+        private void UpdateAvailableTitleList( Title title )
         {
             if( AvailableTitles.Any(element => element == title) )
                 AvailableTitles.Remove(title);

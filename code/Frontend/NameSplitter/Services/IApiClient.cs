@@ -21,7 +21,7 @@ namespace NameSplitter.Services
         /// Gets all titles
         /// </summary>
         /// <returns>List of titles as string</returns>
-        Task<List<string>> GetTitles();
+        Task<List<Title>> GetTitles();
 
         /// <summary>
         /// Parses the input
@@ -30,7 +30,7 @@ namespace NameSplitter.Services
         /// <returns>ParseResponseDto</returns>
         Task<ParseResponseDto> Parse( string input );
 
-        Task<bool> RemoveTitle( string title );
+        Task<bool> RemoveTitle( Title title );
 
         /// <summary>
         /// Saves a parsed entity
