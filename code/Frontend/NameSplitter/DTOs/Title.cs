@@ -10,7 +10,7 @@ namespace NameSplitter.DTOs
     public class Title
     {
         [JsonIgnore]
-        public GenderEnum Gender => _genderEnum;
+        public GenderEnum? Gender => _genderEnum;
 
         [JsonPropertyName("gender")]
         public string GenderString
@@ -33,6 +33,8 @@ namespace NameSplitter.DTOs
                     case "DIVERSE":
                         _genderEnum = GenderEnum.DIVERSE;
                         break;
+
+                    default: _genderEnum = null; break;
                 }
             }
         }
@@ -46,7 +48,7 @@ namespace NameSplitter.DTOs
         [JsonPropertyName("regex")]
         public string Regex { get; set; }
 
-        private GenderEnum _genderEnum;
+        private GenderEnum? _genderEnum;
 
         private string _genderString;
     }

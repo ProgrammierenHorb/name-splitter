@@ -1,11 +1,12 @@
 ﻿<Window x:Class="NameSplitter.Views.AddTitleView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NameSplitter.Views"
+        xmlns:viewmodels="clr-namespace:NameSplitter.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:AddTitleViewModel}"
         mc:Ignorable="d"
-        Title="Titel hinzufügen" MinHeight="225" MinWidth="400" Height="225" Width="400">
+        Title="Titel hinzufügen" MinHeight="325" MinWidth="450" Height="325" Width="450">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />
@@ -14,10 +15,11 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="4*" />
-            <RowDefinition Height="30*" />
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Column="1" Grid.Row="1">
@@ -33,10 +35,24 @@
                 </StackPanel>
             </DockPanel>
         </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="2" Margin="0,20,0,0">
+            <TextBlock Text="Geschlecht:" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <DockPanel>
+                <RadioButton Margin="0,0,0,0" Content="Männlich" IsChecked="{Binding MaleIsChecked}" VerticalAlignment="Center" />
+                <RadioButton Margin="40,0,0,0" Content="Weiblich" IsChecked="{Binding FemaleIsChecked}" VerticalAlignment="Center" />
+                <RadioButton Margin="40,0,0,0" Content="Divers" IsChecked="{Binding DiverseIsChecked}" VerticalAlignment="Center" />
+                <RadioButton Margin="40,0,0,0" Content="Unbekannt" IsChecked="{Binding UnknownIsChecked}" VerticalAlignment="Center" />
+            </DockPanel>
+        </StackPanel>
 
-        <Button  Grid.Column="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Center"
-        Command="{Binding ButtonCancle}"  BorderBrush="OrangeRed" Background="OrangeRed" FontSize="12" Grid.ColumnSpan="2" />
-        <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="2" Width="100" Height="30" Content="Speichern" VerticalAlignment="Center"
-        HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" BorderBrush="LightGreen" Background="LightGreen" FontSize="12" />
+        <StackPanel Grid.Column="1" Grid.Row="3" Margin="0,20,0,0">
+            <TextBlock Width="Auto" VerticalAlignment="Center" Text="Priorität (Wert in Form einer Zahl angeben):" />
+            <TextBox VerticalContentAlignment="Center" Width="Auto" Height="31" Text="{Binding Priority}" PreviewTextInput="NumberValidationTextBox" />
+        </StackPanel>
+
+        <Button  Grid.Column="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="0,17,0,0" Grid.Row="4" Width="100" Height="30" Content="Abbrechen" VerticalAlignment="Top"
+        Command="{Binding ButtonCancle}"  BorderBrush="OrangeRed" Background="OrangeRed" FontSize="12" />
+        <Button Grid.Column="1" VerticalContentAlignment="Center" Grid.Row="4" Width="100" Height="30" Content="Speichern" VerticalAlignment="Top"
+        HorizontalAlignment="Right" Command="{Binding AddTitleCommand}" BorderBrush="LightGreen" Background="LightGreen" FontSize="12" Margin="0,17,0,0" />
     </Grid>
 </Window>

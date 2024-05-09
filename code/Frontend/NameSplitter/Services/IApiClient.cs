@@ -14,8 +14,8 @@ namespace NameSplitter.Services
         /// </summary>
         /// <param name="titleToAdd"></param>
         /// <param name="regex"></param>
-        /// <returns> True if successful</returns>
-        Task<bool> AddTitle( string titleToAdd, string regex );
+        /// <returns> Response message</returns>
+        Task<string> AddTitle( Title title );
 
         /// <summary>
         /// Gets all titles

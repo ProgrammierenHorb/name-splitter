@@ -10,7 +10,7 @@
              mc:Ignorable="d"
              KeyUp="Window_KeyUp"
              prism:ViewModelLocator.AutoWireViewModel="True"
-             d:DesignHeight="400" d:DesignWidth="1000" Background="White">
+             d:DesignHeight="400" d:DesignWidth="1100" Background="White">
     <UserControl.Resources>
         <NameSplitter:StringToListConverter x:Key="StringToListConverterKey" />
 
@@ -59,9 +59,9 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="35*" />
-            <ColumnDefinition Width="35*" />
-            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="15*" />
+            <ColumnDefinition Width="15*" />
+            <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="20*" />
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
@@ -117,12 +117,14 @@
                             <Setter Property="VerticalContentAlignment" Value="Center" />
                             <Setter Property="Padding" Value="8" />
                             <Setter Property="BorderThickness" Value="3" />
-                            <Setter Property="IsEnabled" Value="False" />
+                            <Setter Property="IsEnabled" Value="True" />
                             <Setter Property="Background" Value="LightBlue" />
                         </Style>
                     </GridView.ColumnHeaderContainerStyle>
-                    <GridViewColumn Header="Verfügbare Titel" DisplayMemberBinding="{Binding Name}" Width="Auto" />
                     <GridViewColumn Header="Regex" DisplayMemberBinding="{Binding Regex}" Width="Auto" />
+                    <GridViewColumn Header="Verfügbare Titel" DisplayMemberBinding="{Binding Name}" Width="Auto" />                    
+                    <GridViewColumn Header="Geschlecht" DisplayMemberBinding="{Binding Gender}" Width="Auto" />
+                    <GridViewColumn Header="Priorität" DisplayMemberBinding="{Binding Priority}" Width="Auto" />
                 </GridView>
             </ListView.View>
         </ListView>

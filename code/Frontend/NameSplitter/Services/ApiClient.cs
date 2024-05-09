@@ -27,24 +27,27 @@ namespace NameSplitter.Services
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="regex">The regex.</param>
-        /// <returns></returns>
-        public async Task<bool> AddTitle( string name, string regex )
+        /// <returns>respnse message as a string</returns>
+        public async Task<string> AddTitle( Title title )
         {
             try
             {
-                var jsonContent = JsonSerializer.Serialize(new { name, regex });
+                var jsonContent = JsonSerializer.Serialize(title);
 
                 var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
                 var response = await _client.PostAsync($"addTitle", content);
                 if( response.IsSuccessStatusCode )
-                    return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
+                {
+                    bool successful = JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync());
+                    return successful ? "success" : "already present";
+                }
 
-                return false;
+                return "request failed";
             }
             catch
             {
-                return false;
+                return "server not reachable";
             }
         }
 
