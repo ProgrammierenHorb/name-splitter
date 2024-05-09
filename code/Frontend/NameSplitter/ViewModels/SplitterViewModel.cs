@@ -246,7 +246,7 @@ namespace NameSplitter.ViewModels
                         Gender = result.StructuredName.Gender;
                         FirstName = result.StructuredName.FirstName;
                         LastName = result.StructuredName.LastName;
-                        _key = Guid.NewGuid();
+                        _key = result.StructuredName.Key =  Guid.NewGuid();
                     }
 
                     //dispatcher thread is needed to update the gui
