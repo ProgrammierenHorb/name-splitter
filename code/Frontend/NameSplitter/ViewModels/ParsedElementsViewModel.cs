@@ -112,31 +112,38 @@ namespace NameSplitter.ViewModels
                 var errors = parsedElement.ErrorMessages.OrderBy(e => e.StartPos).ToList();
                 string inputStr = Input;
                 int currentPos = 0;
-                for( int i = 0; i < errors.Count; i++ )
+                if( !string.IsNullOrEmpty(inputStr) )
                 {
-                    var error = errors[i];
-                    if( currentPos < error.StartPos )
+                    for( int i = 0; i < errors.Count; i++ )
                     {
-                        // add a black tuple up to error.StartPos
-                        string str = inputStr.Substring(currentPos, error.StartPos - currentPos);
-                        inputTextWithColor.Add(new TextWithColor(str, new SolidColorBrush(Colors.Black)));
-                        currentPos = error.StartPos;
+                        var error = errors[i];
+                        if( currentPos < error.StartPos )
+                        {
+                            // add a black tuple up to error.StartPos
+                            string str = inputStr.Substring(currentPos, error.StartPos - currentPos);
+                            inputTextWithColor.Add(new TextWithColor(str, new SolidColorBrush(Colors.Black)));
+                            currentPos = error.StartPos;
+                        }
+
+                        // now add colored tuple up to error.EndPos
+                        string errorStr = inputStr.Substring(currentPos, error.EndPos - currentPos + 1);
+                        var color = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GetRandomHexColor()));
+                        inputTextWithColor.Add(new TextWithColor(errorStr, color));
+                        ResponseText.Add(new TextWithColor(error.Message, color));
+
+                        currentPos = error.EndPos + 1;
                     }
 
-                    // now add colored tuple up to error.EndPos
-                    string errorStr = inputStr.Substring(currentPos, error.EndPos - currentPos + 1);
-                    var color = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GetRandomHexColor()));
-                    inputTextWithColor.Add(new TextWithColor(errorStr, color));
-                    ResponseText.Add(new TextWithColor(error.Message, color));
-
-                    currentPos = error.EndPos + 1;
+                    // if there's any string left after last error, add it in black
+                    if( currentPos < inputStr.Length )
+                    {
+                        string endStr = inputStr.Substring(currentPos);
+                        inputTextWithColor.Add(new TextWithColor(endStr, new SolidColorBrush(Colors.Black)));
+                    }
                 }
-
-                // if there's any string left after last error, add it in black
-                if( currentPos < inputStr.Length )
+                else
                 {
-                    string endStr = inputStr.Substring(currentPos);
-                    inputTextWithColor.Add(new TextWithColor(endStr, new SolidColorBrush(Colors.Black)));
+                    inputTextWithColor.Add(new TextWithColor("Keine Eingabe vorhanden", new SolidColorBrush(Colors.Red)));
                 }
             }
             parsedElementsView.WriteInTextbox(inputTextWithColor);
