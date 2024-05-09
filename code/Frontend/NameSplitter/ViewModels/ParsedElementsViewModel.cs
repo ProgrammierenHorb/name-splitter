@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace NameSplitter.ViewModels
@@ -189,6 +190,13 @@ namespace NameSplitter.ViewModels
         /// </summary>
         public async void SaveParsedElementsButtonHandler()
         {
+            if(string.IsNullOrEmpty(LastName) )
+            {
+                MessageBox.Show("Bitte geben Sie mindestens einen Nachnamen ein", "Keine valide Angaben", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+                return;
+            }
+
             StructuredName structuredName = new StructuredName
             {
                 Titles = Titles.Where(x => x.Name != "-Keine Auswahl-").Select(element => element.Name).ToList() ?? new List<string>(),
