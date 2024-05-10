@@ -134,7 +134,6 @@ namespace NameSplitter.ViewModels
         public void FormatResponseText( ParsedElementsView parsedElementsView, ParseResponseDto parsedElement )
         {
             List<TextWithColor> inputTextWithColor = new();
-            var errors = parsedElement.ErrorMessages.OrderBy(e => e.StartPos).ToList();
             if (parsedElement.ErrorMessages == null || !parsedElement.ErrorMessages.Any())
             {
                 inputTextWithColor.Add(new TextWithColor(Input, new SolidColorBrush(Colors.Black)));
@@ -142,6 +141,7 @@ namespace NameSplitter.ViewModels
             }
             else
             {
+                var errors = parsedElement.ErrorMessages.OrderBy(e => e.StartPos).ToList();
                 if (!string.IsNullOrEmpty(Input))
                 {
                     inputTextWithColor.Add(new TextWithColor(Input, new SolidColorBrush(Colors.Black)));

@@ -6,13 +6,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:NameSplitter="clr-namespace:NameSplitter.Converter"
         xmlns:viewmodels="clr-namespace:NameSplitter.ViewModels"
+        xmlns:validation="clr-namespace:NameSplitter.Validation"
         d:DataContext="{d:DesignInstance Type=viewmodels:ParsedElementsViewModel}"
         mc:Ignorable="d"
         KeyUp="Window_KeyUp"
-        Title="Rückgabe des Parsers" MinHeight="500" MinWidth="400" Height="550" Width="400">
+        Title="Rückgabe des Parsers" MinHeight="500" MinWidth="400" Height="550" Width="450">
 
     <Window.Resources>
         <NameSplitter:StringToListConverter x:Key="StringToListConverterKey" />
+
+        <ControlTemplate x:Key="validationTemplate">
+            <DockPanel>
+                <TextBlock Margin="0,-5,1,0" Foreground="Red" FontSize="28">!</TextBlock>
+                <AdornedElementPlaceholder />
+            </DockPanel>
+        </ControlTemplate>
+        <Style x:Key="textBoxInError" TargetType="{x:Type TextBox}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                Path=(Validation.Errors)/ErrorContent}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -53,14 +70,36 @@
                 <Label Content="Vorname" Margin="30,0,0,0" />
                 <DockPanel>
                     <materialDesign:PackIcon HorizontalAlignment="Center" Kind="Person" Width="30" Height="30" VerticalAlignment="Bottom" Margin="0,0,5,0" />
-                    <TextBox  VerticalContentAlignment="Center" Width="Auto" Height="30" Text="{Binding FirstName}" VerticalAlignment="Center" />
+                    <TextBox VerticalContentAlignment="Center" Width="Auto" Height="30" VerticalAlignment="Center"
+    Validation.ErrorTemplate="{StaticResource validationTemplate}"
+    Style="{StaticResource textBoxInError}">
+                        <TextBox.Text>
+                            <Binding Path="FirstName"
+UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <validation:TextBoxInputValidation />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
                 </DockPanel>
             </StackPanel>
             <StackPanel Margin="0,10,0,0">
                 <Label Content="Nachname:" Margin="30,0,0,0" />
                 <DockPanel>
                     <materialDesign:PackIcon HorizontalAlignment="Center" Kind="Person" Width="30" Height="30" VerticalAlignment="Bottom" Margin="0,0,5,0" />
-                    <TextBox  VerticalContentAlignment="Center" Width="Auto" Height="30" Text="{Binding LastName}" VerticalAlignment="Center" />
+                    <TextBox VerticalContentAlignment="Center" Width="Auto" Height="30" VerticalAlignment="Center"
+                 Validation.ErrorTemplate="{StaticResource validationTemplate}"
+                 Style="{StaticResource textBoxInError}">
+                        <TextBox.Text>
+                            <Binding Path="LastName"
+             UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <validation:TextBoxInputValidation />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
                 </DockPanel>
             </StackPanel>
             <StackPanel Margin="0,10,0,0">
