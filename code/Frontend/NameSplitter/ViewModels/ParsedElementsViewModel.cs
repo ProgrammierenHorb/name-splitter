@@ -1,4 +1,5 @@
-﻿using NameSplitter.DTOs;
+﻿using DryIoc;
+using NameSplitter.DTOs;
 using NameSplitter.Enum;
 using NameSplitter.Events;
 using NameSplitter.Services;
@@ -133,6 +134,7 @@ namespace NameSplitter.ViewModels
         public void FormatResponseText( ParsedElementsView parsedElementsView, ParseResponseDto parsedElement )
         {
             List<TextWithColor> inputTextWithColor = new();
+            var errors = parsedElement.ErrorMessages.OrderBy(e => e.StartPos).ToList();
             if (parsedElement.ErrorMessages == null || !parsedElement.ErrorMessages.Any())
             {
                 inputTextWithColor.Add(new TextWithColor(Input, new SolidColorBrush(Colors.Black)));
@@ -140,38 +142,19 @@ namespace NameSplitter.ViewModels
             }
             else
             {
-                var errors = parsedElement.ErrorMessages.OrderBy(e => e.StartPos).ToList();
-                string inputStr = Input;
-                int currentPos = 0;
-                if (!string.IsNullOrEmpty(inputStr))
+                if (!string.IsNullOrEmpty(Input))
                 {
+                    inputTextWithColor.Add(new TextWithColor(Input, new SolidColorBrush(Colors.Black)));
                     for (int i = 0; i < errors.Count; i++)
                     {
-                        var error = errors[i];
-                        if (currentPos < error.StartPos)
+                        if (errors[i].StartPos == 0 && errors[i].EndPos == 0)
                         {
-                            // add a black tuple up to error.StartPos
-                            string str = inputStr.Substring(currentPos, error.StartPos - currentPos);
-                            inputTextWithColor.Add(new TextWithColor(str, new SolidColorBrush(Colors.Black)));
-                            currentPos = error.StartPos;
+                            ResponseText.Add(new TextWithColor($"{errors[i].Message}", new SolidColorBrush(Colors.Black)));
                         }
-
-                        // now add colored tuple up to error.EndPos
-                        int length = error.EndPos - currentPos;
-                        if(length < 1)length = 1;
-                        string errorStr = inputStr.Substring(currentPos, length);
-                        var color = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GetRandomHexColor()));
-                        inputTextWithColor.Add(new TextWithColor(errorStr, color));
-                        ResponseText.Add(new TextWithColor(error.Message, color));
-
-                        currentPos = error.EndPos + 1;
-                    }
-
-                    // if there's any string left after last error, add it in black
-                    if (currentPos < inputStr.Length)
-                    {
-                        string endStr = inputStr.Substring(currentPos);
-                        inputTextWithColor.Add(new TextWithColor(endStr, new SolidColorBrush(Colors.Black)));
+                        else
+                        {
+                            ResponseText.Add(new TextWithColor($"{errors[i].Message} (Position {errors[i].StartPos} bis {errors[i].EndPos})", new SolidColorBrush(Colors.Black)));
+                        }
                     }
                 }
                 else
