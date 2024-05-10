@@ -11,9 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using static ImTools.ImMap;
 
 namespace NameSplitter.ViewModels
 {
@@ -205,6 +207,25 @@ namespace NameSplitter.ViewModels
         /// </summary>
         public async void SaveParsedElementsButtonHandler()
         {
+            if (!Regex.IsMatch(LastName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$") && !Regex.IsMatch(FirstName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
+            {
+                MessageBox.Show("Der Voranme und der Nachname enthalten ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+                return;
+            }
+            if (!Regex.IsMatch(LastName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
+            {
+                MessageBox.Show("Der Nachname enthält ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+                return;
+            }
+            if (!Regex.IsMatch(FirstName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
+            {
+                MessageBox.Show("Der Vorname enthält ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+                return;
+            }
+
             if (string.IsNullOrEmpty(LastName))
             {
                 MessageBox.Show("Bitte geben Sie mindestens einen Nachnamen ein", "Keine valide Angaben", MessageBoxButton.OK,
