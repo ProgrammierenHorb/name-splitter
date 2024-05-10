@@ -153,6 +153,10 @@ namespace NameSplitter.ViewModels
                         {
                             ResponseText.Add(new TextWithColor($"{errors[i].Message}", new SolidColorBrush(Colors.Black)));
                         }
+                        else if (errors[i].StartPos == errors[i].EndPos)
+                        {
+                            ResponseText.Add(new TextWithColor($"{errors[i].Message} (Position {errors[i].StartPos})", new SolidColorBrush(Colors.Black)));
+                        }
                         else
                         {
                             ResponseText.Add(new TextWithColor($"{errors[i].Message} (Position {errors[i].StartPos} bis {errors[i].EndPos})", new SolidColorBrush(Colors.Black)));
@@ -207,28 +211,31 @@ namespace NameSplitter.ViewModels
         /// </summary>
         public async void SaveParsedElementsButtonHandler()
         {
-            if (!Regex.IsMatch(LastName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$") && !Regex.IsMatch(FirstName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
-            {
-                MessageBox.Show("Der Voranme und der Nachname enthalten ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
-                MessageBoxImage.Error);
-                return;
-            }
-            if (!Regex.IsMatch(LastName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
-            {
-                MessageBox.Show("Der Nachname enthält ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
-                MessageBoxImage.Error);
-                return;
-            }
-            if (!Regex.IsMatch(FirstName as string, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
-            {
-                MessageBox.Show("Der Vorname enthält ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
-                MessageBoxImage.Error);
-                return;
-            }
 
             if (string.IsNullOrEmpty(LastName))
             {
                 MessageBox.Show("Bitte geben Sie mindestens einen Nachnamen ein", "Keine valide Angaben", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+                return;
+            }
+            if (!string.IsNullOrEmpty(FirstName))
+            {
+                if (!Regex.IsMatch(LastName, @"^[\p{L}\p{M}\p{Z}.,\s-']+$") && !Regex.IsMatch(FirstName, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
+                {
+                    MessageBox.Show("Der Voranme und der Nachname enthalten ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                    return;
+                }
+                if (!Regex.IsMatch(FirstName, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
+                {
+                    MessageBox.Show("Der Vorname enthält ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                    return;
+                }
+            }
+            if (!Regex.IsMatch(LastName, @"^[\p{L}\p{M}\p{Z}.,\s-']+$"))
+            {
+                MessageBox.Show("Der Nachname enthält ungültige Zeichen", "Keine valide Angaben", MessageBoxButton.OK,
                 MessageBoxImage.Error);
                 return;
             }

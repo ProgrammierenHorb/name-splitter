@@ -11,7 +11,7 @@ namespace NameSplitter.Views
     /// <summary>
     /// Interaction logic for ParsedElements.xaml
     /// </summary>
-    public partial class ParsedElementsView: Window
+    public partial class ParsedElementsView : Window
     {
         private IEventAggregator _eventAggregator;
 
@@ -23,7 +23,7 @@ namespace NameSplitter.Views
 
         public void WriteInTextbox( List<TextWithColor> words )
         {
-            foreach( var word in words )
+            foreach (var word in words)
             {
                 MyTextBlock.Inlines.Add(new Run
                 {
@@ -31,12 +31,6 @@ namespace NameSplitter.Views
                     Foreground = word.Color
                 });
             }
-        }
-
-        private void Window_KeyUp( object sender, KeyEventArgs e )
-        {
-            if( e.Key == Key.Enter )
-                _eventAggregator.GetEvent<SaveParsedElements>().Publish();
         }
     }
 }
